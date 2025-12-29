@@ -56,5 +56,29 @@ export const setRawItem = (key: string, value: string): void => {
   localStorage.setItem(key, value);
 };
 
+// ==============================================
+// AGENT SYSTEM UTILITIES
+// ==============================================
+
+// Alias for getItem (used in agent system)
+export const getFromStorage = <T>(key: string, defaultValue: T): T => {
+  return getItem<T>(key, defaultValue);
+};
+
+// Alias for setItem (used in agent system)
+export const saveToStorage = <T>(key: string, value: T): void => {
+  setItem<T>(key, value);
+};
+
+// Generate random ID
+export const generateId = (length: number = 6): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 
 

@@ -4,7 +4,7 @@
 // ==============================================
 
 // Base utilities
-export { isBrowser, getItem, setItem, removeItem, hasItem, getRawItem, setRawItem } from './base';
+export { isBrowser, getItem, setItem, removeItem, hasItem, getRawItem, setRawItem, getFromStorage, saveToStorage, generateId } from './base';
 
 // Survey
 export { saveSurvey, getSurvey, hasSurvey, clearSurvey } from './survey';
