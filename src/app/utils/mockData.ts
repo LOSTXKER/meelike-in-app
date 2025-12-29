@@ -20,6 +20,7 @@ import {
 import { createClient, getClients } from './storage/clients';
 import { saveBill, getBills } from './storage/bills';
 import { getCoupons, createCoupon, getFlashSales, createFlashSale } from './storage/promotions';
+import { getAgentReviews, createAgentReview } from './storage/agentReviews';
 import type { Bill, BillItem, BillStatus } from '@/app/types/bill';
 import { generateBillId, generateBillNumber } from '@/app/types/bill';
 
@@ -467,4 +468,65 @@ export function initializeMockData(): void {
   generateMockClients();
   generateMockBills();
   generateMockPromotions();
+  generateMockAgentReviews();
+}
+
+/**
+ * Generate mock agent reviews for Agent demo
+ */
+export function generateMockAgentReviews(): void {
+  // Check if reviews already exist
+  const existingReviews = getAgentReviews(DEMO_AGENT_ID);
+  if (existingReviews.length > 0) {
+    console.log('Agent reviews already exist, skipping...');
+    return;
+  }
+
+  const reviewComments = [
+    { rating: 5, comment: 'บริการดีมากครับ ตอบเร็ว งานเร็ว ประทับใจมาก' },
+    { rating: 5, comment: 'ยอดเยี่ยมค่ะ ใช้บริการหลายครั้งแล้ว ไม่เคยผิดหวัง' },
+    { rating: 4, comment: 'ดีครับ แต่ส่งงานช้านิดนึง แต่ผลงานโอเค' },
+    { rating: 5, comment: 'Recommend เลยครับ ราคาดี คุณภาพดี' },
+    { rating: 4, comment: 'พึงพอใจค่ะ จะกลับมาใช้บริการอีก' },
+    { rating: 5, comment: 'เจ้าของร้านใจดีมากครับ แถมยอดให้ด้วย' },
+    { rating: 3, comment: 'พอใช้ได้ครับ' },
+    { rating: 5, comment: 'งานเสร็จเร็วมากกกก ชอบมากค่ะ' },
+  ];
+
+  const clientNames = ['คุณ สมชาย', 'คุณ วิภา', 'ร้านกาแฟ', 'คุณ มานะ', 'คุณ ปรียา', undefined, 'คุณ อนันต์', undefined];
+  const contacts = ['081-234-5678', '082-345-6789', '@cafe_th', '083-456-7890', '@preeya', '084-567-8901', '085-678-9012', '086-789-0123'];
+  const services = [
+    { id: 1, name: 'Instagram Followers (คนไทย)' },
+    { id: 2, name: 'TikTok วิว (Fast)' },
+    { id: 3, name: 'Facebook ถูกใจโพสต์' },
+  ];
+
+  reviewComments.forEach((review, index) => {
+    const service = services[index % services.length];
+    const daysAgo = Math.floor(Math.random() * 30);
+    const createdAt = new Date();
+    createdAt.setDate(createdAt.getDate() - daysAgo);
+
+    try {
+      createAgentReview(
+        DEMO_AGENT_ID,
+        'demo_store',
+        `BILL-${Date.now()}-${index}`,
+        index % 2 === 0 ? `client_${index}` : undefined,
+        clientNames[index % clientNames.length],
+        contacts[index % contacts.length],
+        service.id,
+        service.name,
+        {
+          billId: `BILL-${Date.now()}-${index}`,
+          rating: review.rating,
+          comment: review.comment,
+        }
+      );
+    } catch (error) {
+      console.error('Error creating review:', error);
+    }
+  });
+
+  console.log(`Agent mock reviews initialized: ${reviewComments.length} reviews`);
 }
