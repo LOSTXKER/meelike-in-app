@@ -1,27 +1,26 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AgentHeader } from '../../components';
+import { getClients, createClient, getClientById } from '@/app/utils/storage/clients';
+import { saveBill } from '@/app/utils/storage/bills';
+import { updateClientOrderStats } from '@/app/utils/storage/clients';
+import type { Client } from '@/app/types/client';
+import type { Bill, BillItem } from '@/app/types/bill';
+import { generateBillId, generateBillNumber } from '@/app/types/bill';
 
-// Mock services data
+// Mock services data (TODO: Move to services storage)
 const mockServices = [
-  { id: 1, name: 'เพิ่มไลค์โพสต์ Facebook (คนไทย)', category: 'Facebook', cost: 0.08, min: 100, max: 50000 },
-  { id: 2, name: 'เพิ่มผู้ติดตาม Facebook', category: 'Facebook', cost: 0.12, min: 100, max: 10000 },
-  { id: 3, name: 'เพิ่มผู้ติดตาม Instagram', category: 'Instagram', cost: 0.15, min: 100, max: 10000 },
-  { id: 4, name: 'เพิ่มไลค์โพสต์ Instagram', category: 'Instagram', cost: 0.05, min: 100, max: 50000 },
-  { id: 5, name: 'เพิ่มวิว TikTok', category: 'TikTok', cost: 0.02, min: 1000, max: 1000000 },
-  { id: 6, name: 'เพิ่มผู้ติดตาม TikTok', category: 'TikTok', cost: 0.2, min: 100, max: 10000 },
-  { id: 7, name: 'เพิ่มสมาชิก YouTube', category: 'YouTube', cost: 3, min: 100, max: 5000 },
-  { id: 8, name: 'เพิ่มวิว YouTube', category: 'YouTube', cost: 0.05, min: 1000, max: 100000 },
-];
-
-// Mock clients
-const mockClients = [
-  { id: 'client_1', name: 'ร้านกาแฟ A', contact: '081-234-5678' },
-  { id: 'client_2', name: 'ร้านเสื้อผ้า B', contact: '092-345-6789' },
-  { id: 'client_3', name: 'คุณ C', contact: 'line_id_c' },
+  { id: 'svc-1', name: 'เพิ่มไลค์โพสต์ Facebook (คนไทย)', category: 'Facebook', cost: 0.08, min: 100, max: 50000 },
+  { id: 'svc-2', name: 'เพิ่มผู้ติดตาม Facebook', category: 'Facebook', cost: 0.12, min: 100, max: 10000 },
+  { id: 'svc-3', name: 'เพิ่มผู้ติดตาม Instagram', category: 'Instagram', cost: 0.15, min: 100, max: 10000 },
+  { id: 'svc-4', name: 'เพิ่มไลค์โพสต์ Instagram', category: 'Instagram', cost: 0.05, min: 100, max: 50000 },
+  { id: 'svc-5', name: 'เพิ่มวิว TikTok', category: 'TikTok', cost: 0.02, min: 1000, max: 1000000 },
+  { id: 'svc-6', name: 'เพิ่มผู้ติดตาม TikTok', category: 'TikTok', cost: 0.2, min: 100, max: 10000 },
+  { id: 'svc-7', name: 'เพิ่มสมาชิก YouTube', category: 'YouTube', cost: 3, min: 100, max: 5000 },
+  { id: 'svc-8', name: 'เพิ่มวิว YouTube', category: 'YouTube', cost: 0.05, min: 1000, max: 100000 },
 ];
 
 // Icons
@@ -43,8 +42,15 @@ const PlusIcon = () => (
   </svg>
 );
 
+const AGENT_ID = 'demo_agent'; // TODO: Get from auth
+
 export default function NewOrderPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedClientId = searchParams.get('client');
+  
+  // Clients data
+  const [clients, setClients] = useState<Client[]>([]);
   
   // Form state
   const [selectedService, setSelectedService] = useState<typeof mockServices[0] | null>(null);
@@ -54,7 +60,7 @@ export default function NewOrderPage() {
   const [salePrice, setSalePrice] = useState('');
   
   // Client state
-  const [selectedClient, setSelectedClient] = useState<typeof mockClients[0] | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clientSearch, setClientSearch] = useState('');
   const [showNewClientForm, setShowNewClientForm] = useState(false);
   const [newClientName, setNewClientName] = useState('');
@@ -64,6 +70,22 @@ export default function NewOrderPage() {
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [note, setNote] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load clients
+  useEffect(() => {
+    const allClients = getClients(AGENT_ID);
+    setClients(allClients);
+    
+    // Pre-select client if provided
+    if (preselectedClientId) {
+      const client = getClientById(AGENT_ID, preselectedClientId);
+      if (client) {
+        setSelectedClient(client);
+        setClientSearch(client.name);
+      }
+    }
+  }, [preselectedClientId]);
 
   // Filter services
   const filteredServices = useMemo(() => {
@@ -77,13 +99,13 @@ export default function NewOrderPage() {
 
   // Filter clients
   const filteredClients = useMemo(() => {
-    if (!clientSearch) return mockClients;
+    if (!clientSearch) return clients;
     const query = clientSearch.toLowerCase();
-    return mockClients.filter(c =>
+    return clients.filter(c =>
       c.name.toLowerCase().includes(query) ||
       c.contact.toLowerCase().includes(query)
     );
-  }, [clientSearch]);
+  }, [clientSearch, clients]);
 
   // Calculate costs
   const calculations = useMemo(() => {
@@ -112,18 +134,81 @@ export default function NewOrderPage() {
   };
 
   // Handle submit
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Would create bill here
-    console.log('Creating bill...', {
-      service: selectedService,
-      quantity,
-      link,
-      salePrice,
-      client: selectedClient || { name: newClientName, contact: newClientContact },
-      note,
-    });
-    router.push('/agent/orders');
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Get or create client
+      let clientId: string;
+      let clientName: string;
+      let clientContact: string;
+      
+      if (selectedClient) {
+        clientId = selectedClient.id;
+        clientName = selectedClient.name;
+        clientContact = selectedClient.contact;
+      } else {
+        // Create new client
+        const newClient = createClient(AGENT_ID, {
+          name: newClientName,
+          contact: newClientContact,
+        });
+        clientId = newClient.id;
+        clientName = newClient.name;
+        clientContact = newClient.contact;
+      }
+      
+      // Create bill item
+      const qty = parseInt(quantity) || 0;
+      const sale = parseFloat(salePrice) || 0;
+      const costPrice = selectedService!.cost * qty;
+      
+      const billItem: BillItem = {
+        id: `item_${Date.now()}`,
+        serviceId: selectedService!.id,
+        serviceName: selectedService!.name,
+        quantity: qty,
+        unitPrice: selectedService!.cost,
+        sellPrice: sale / qty,
+        totalCost: costPrice,
+        totalSell: sale,
+        profit: sale - costPrice,
+        link,
+        status: 'pending',
+        progress: 0,
+        currentCount: 0,
+      };
+      
+      // Create bill
+      const bill: Bill = {
+        id: generateBillId(),
+        billNumber: generateBillNumber(),
+        agentId: AGENT_ID,
+        clientId,
+        clientName,
+        clientContact,
+        items: [billItem],
+        totalCost: costPrice,
+        sellPrice: sale,
+        totalAmount: sale,
+        totalProfit: sale - costPrice,
+        status: 'pending',
+        source: 'agent',
+        note: note || undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      saveBill(bill);
+      
+      // Update client stats if completed (for now just navigate)
+      router.push('/agent/orders');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Suggested price (50% margin)
@@ -296,7 +381,7 @@ export default function NewOrderPage() {
                     <div className="border-t border-default pt-2 mt-2">
                       <div className="flex justify-between">
                         <span className="font-medium text-primary">กำไร</span>
-                        <span className={`font-bold ${calculations.profit >= 0 ? 'text-success' : 'text-error'}`}>
+                        <span className={`font-bold ${calculations.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                           {formatCurrency(calculations.profit)}
                           <span className="text-xs ml-1">({calculations.margin.toFixed(1)}%)</span>
                         </span>
@@ -327,6 +412,9 @@ export default function NewOrderPage() {
                           onChange={(e) => {
                             setClientSearch(e.target.value);
                             setShowClientDropdown(true);
+                            if (selectedClient && e.target.value !== selectedClient.name) {
+                              setSelectedClient(null);
+                            }
                           }}
                           onFocus={() => setShowClientDropdown(true)}
                           className="w-full pl-10 pr-4 py-2.5 bg-main border border-default rounded-lg text-sm focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary outline-none"
@@ -334,23 +422,29 @@ export default function NewOrderPage() {
                       </div>
                       
                       {/* Client Dropdown */}
-                      {showClientDropdown && (
+                      {showClientDropdown && !selectedClient && (
                         <div className="absolute z-10 mt-1 w-full bg-surface dark:bg-dark-surface border border-default rounded-lg shadow-lg max-h-60 overflow-auto">
-                          {filteredClients.map(client => (
-                            <button
-                              key={client.id}
-                              type="button"
-                              onClick={() => {
-                                setSelectedClient(client);
-                                setClientSearch(client.name);
-                                setShowClientDropdown(false);
-                              }}
-                              className="w-full px-4 py-3 text-left hover:bg-hover transition-colors"
-                            >
-                              <p className="font-medium text-primary">{client.name}</p>
-                              <p className="text-xs text-tertiary">{client.contact}</p>
-                            </button>
-                          ))}
+                          {filteredClients.length > 0 ? (
+                            filteredClients.map(client => (
+                              <button
+                                key={client.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setClientSearch(client.name);
+                                  setShowClientDropdown(false);
+                                }}
+                                className="w-full px-4 py-3 text-left hover:bg-hover transition-colors"
+                              >
+                                <p className="font-medium text-primary">{client.name}</p>
+                                <p className="text-xs text-tertiary">{client.contact}</p>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-center text-tertiary">
+                              ไม่พบลูกค้า
+                            </div>
+                          )}
                           <button
                             type="button"
                             onClick={() => {
@@ -379,7 +473,7 @@ export default function NewOrderPage() {
                             setSelectedClient(null);
                             setClientSearch('');
                           }}
-                          className="text-error hover:underline text-sm"
+                          className="text-red-500 hover:underline text-sm"
                         >
                           เปลี่ยน
                         </button>
@@ -391,7 +485,7 @@ export default function NewOrderPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
-                        ชื่อลูกค้า
+                        ชื่อลูกค้า <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -404,7 +498,7 @@ export default function NewOrderPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
-                        ช่องทางติดต่อ
+                        ช่องทางติดต่อ <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -456,9 +550,10 @@ export default function NewOrderPage() {
                 </Link>
                 <button
                   type="submit"
-                  className="flex-1 py-3 font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  สร้างบิล
+                  {isSubmitting ? 'กำลังสร้าง...' : 'สร้างบิล'}
                 </button>
               </div>
             )}
@@ -468,4 +563,3 @@ export default function NewOrderPage() {
     </>
   );
 }
-

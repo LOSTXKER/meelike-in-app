@@ -167,8 +167,18 @@ export interface BillSort {
  * Generate Bill ID
  */
 export function generateBillId(): string {
-  const randomNum = Math.floor(10000 + Math.random() * 90000);
-  return `BILL-${randomNum}`;
+  return `bill_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
+ * Generate Bill Number (human-readable)
+ */
+export function generateBillNumber(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const randomNum = Math.floor(1000 + Math.random() * 9000);
+  return `INV-${year}${month}-${randomNum}`;
 }
 
 /**

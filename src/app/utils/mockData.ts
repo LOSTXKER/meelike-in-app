@@ -1,7 +1,7 @@
 // src/app/utils/mockData.ts
 
 /**
- * Mock data generator for testing the review system and leaderboard
+ * Mock data generator for testing the review system, leaderboard, and Agent system
  * This file only exports functions - no auto-execution
  */
 
@@ -16,6 +16,11 @@ import {
   type LeaderboardUser,
   type LeaderboardData
 } from './localStorage';
+
+import { createClient, getClients } from './storage/clients';
+import { saveBill, getBills } from './storage/bills';
+import type { Bill, BillItem, BillStatus } from '@/app/types/bill';
+import { generateBillId, generateBillNumber } from '@/app/types/bill';
 
 export function generateMockReviews(): ReviewData[] {
   const mockReviews: ReviewData[] = [
@@ -193,6 +198,134 @@ export function generateMockLeaderboard(): LeaderboardData {
   };
 }
 
+// ==============================================
+// AGENT MOCK DATA
+// ==============================================
+
+const DEMO_AGENT_ID = 'demo_agent';
+
+/**
+ * Generate mock clients for Agent demo
+ */
+export function generateMockClients(): void {
+  // Check if clients already exist
+  const existingClients = getClients(DEMO_AGENT_ID);
+  if (existingClients.length > 0) {
+    console.log('Agent clients already exist, skipping...');
+    return;
+  }
+
+  const mockClients = [
+    { name: 'ร้านกาแฟ Morning Brew', contact: '081-234-5678', email: 'morningbrew@email.com', note: 'ลูกค้าประจำ สั่งเยอะทุกสัปดาห์', tags: ['ร้านกาแฟ', 'ลูกค้าประจำ'] },
+    { name: 'คุณ สมชาย ดีใจ', contact: '082-345-6789', email: 'somchai@email.com', note: 'สนใจ TikTok เป็นหลัก', tags: ['TikTok'] },
+    { name: 'ร้านเสื้อผ้า Fashion Hub', contact: '@fashionhub_th', email: 'fashion@email.com', note: 'ต้องการโปรโมทสินค้าใหม่ทุกเดือน', tags: ['แฟชั่น', 'Instagram'] },
+    { name: 'คุณ วิภา รักสวย', contact: '083-456-7890', tags: ['Facebook', 'ลูกค้าใหม่'] },
+    { name: 'ร้านอาหาร ครัวคุณแม่', contact: '084-567-8901', email: 'kuakunmae@email.com', note: 'ต้องการเพิ่ม followers IG', tags: ['ร้านอาหาร', 'Instagram'] },
+    { name: 'บริษัท Tech Start', contact: '@techstart_official', email: 'contact@techstart.co', note: 'ลูกค้า B2B งบเยอะ', tags: ['บริษัท', 'VIP'] },
+    { name: 'คุณ มานะ ขยัน', contact: '085-678-9012', tags: ['YouTube'] },
+    { name: 'ร้านขายของออนไลน์ ShopDee', contact: '086-789-0123', email: 'shopdee@email.com', note: 'สั่งบ่อย โปรโมทสินค้าใหม่ตลอด', tags: ['ออนไลน์', 'ลูกค้าประจำ'] },
+    { name: 'คุณ ปรียา สวยใส', contact: '@preeya_beauty', tags: ['TikTok', 'Instagram'] },
+    { name: 'ร้านหนังสือ Book Corner', contact: '087-890-1234', email: 'bookcorner@email.com', tags: ['ร้านหนังสือ', 'Facebook'] },
+    { name: 'คุณ อนันต์ รุ่งเรือง', contact: '088-901-2345', note: 'ลูกค้าใหม่ สนใจบริการ Twitter', tags: ['Twitter', 'ลูกค้าใหม่'] },
+    { name: 'โรงแรม Grand Paradise', contact: '089-012-3456', email: 'grandparadise@email.com', note: 'ต้องการโปรโมทช่วงเทศกาล', tags: ['โรงแรม', 'VIP'] },
+  ];
+
+  mockClients.forEach(client => {
+    createClient(DEMO_AGENT_ID, client);
+  });
+
+  console.log(`Agent mock clients initialized: ${mockClients.length} clients`);
+}
+
+/**
+ * Generate mock bills for Agent demo
+ */
+export function generateMockBills(): void {
+  // Check if bills already exist
+  const existingBills = getBills(DEMO_AGENT_ID);
+  if (existingBills.length > 0) {
+    console.log('Agent bills already exist, skipping...');
+    return;
+  }
+
+  const clients = getClients(DEMO_AGENT_ID);
+  if (clients.length === 0) {
+    console.log('No clients found, cannot create mock bills');
+    return;
+  }
+
+  const services = [
+    { id: 'svc-1', name: 'Facebook ถูกใจโพสต์ (คนไทย)', unitPrice: 0.10 },
+    { id: 'svc-2', name: 'Instagram Followers (คนไทย)', unitPrice: 0.15 },
+    { id: 'svc-3', name: 'TikTok วิว (Fast)', unitPrice: 0.05 },
+    { id: 'svc-4', name: 'YouTube วิว (คนไทย)', unitPrice: 0.20 },
+    { id: 'svc-5', name: 'Twitter Followers', unitPrice: 0.12 },
+  ];
+
+  const statuses: BillStatus[] = ['pending', 'confirmed', 'processing', 'completed', 'cancelled'];
+
+  // Generate 15 mock bills
+  for (let i = 0; i < 15; i++) {
+    const client = clients[Math.floor(Math.random() * clients.length)];
+    const service = services[Math.floor(Math.random() * services.length)];
+    const quantity = Math.floor(Math.random() * 5000) + 500; // 500-5500
+    
+    // Agent markup 30-80%
+    const markup = 1.3 + (Math.random() * 0.5);
+    const sellPrice = Math.round(service.unitPrice * quantity * markup * 100) / 100;
+    const costPrice = service.unitPrice * quantity;
+    
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const daysAgo = Math.floor(Math.random() * 30);
+    const createdAt = new Date();
+    createdAt.setDate(createdAt.getDate() - daysAgo);
+
+    const item: BillItem = {
+      id: `item-${i}-1`,
+      serviceId: service.id,
+      serviceName: service.name,
+      quantity,
+      unitPrice: service.unitPrice,
+      sellPrice: sellPrice / quantity,
+      totalCost: costPrice,
+      totalSell: sellPrice,
+      profit: sellPrice - costPrice,
+      link: 'https://example.com/post/' + Math.floor(Math.random() * 10000),
+      status: status === 'completed' ? 'completed' : status === 'cancelled' ? 'cancelled' : 'pending',
+      progress: status === 'completed' ? 100 : status === 'processing' ? Math.floor(Math.random() * 80) + 10 : 0,
+      currentCount: status === 'completed' ? quantity : status === 'processing' ? Math.floor(quantity * Math.random() * 0.8) : 0,
+    };
+
+    const bill: Bill = {
+      id: generateBillId(),
+      billNumber: generateBillNumber(),
+      agentId: DEMO_AGENT_ID,
+      clientId: client.id,
+      clientName: client.name,
+      clientContact: client.contact,
+      items: [item],
+      totalCost: costPrice,
+      sellPrice: sellPrice,
+      totalAmount: sellPrice,
+      totalProfit: sellPrice - costPrice,
+      status,
+      source: Math.random() > 0.3 ? 'agent' : 'store',
+      note: Math.random() > 0.5 ? 'ลูกค้าต้องการเร็ว' : undefined,
+      createdAt: createdAt.toISOString(),
+      updatedAt: createdAt.toISOString(),
+      confirmedAt: ['confirmed', 'processing', 'completed'].includes(status) ? createdAt.toISOString() : undefined,
+      startedAt: ['processing', 'completed'].includes(status) ? createdAt.toISOString() : undefined,
+      completedAt: status === 'completed' ? new Date().toISOString() : undefined,
+      cancelledAt: status === 'cancelled' ? createdAt.toISOString() : undefined,
+      cancellationReason: status === 'cancelled' ? 'ลูกค้ายกเลิก' : undefined,
+    };
+
+    saveBill(bill);
+  }
+
+  console.log('Agent mock bills initialized: 15 bills');
+}
+
 // Function to initialize mock data (call from client component only)
 export function initializeMockData(): void {
   // Always regenerate mock data for testing purposes
@@ -212,4 +345,8 @@ export function initializeMockData(): void {
   saveLeaderboardData(leaderboardData);
   console.log('Leaderboard data initialized');
   console.log('Daily login data reset for testing');
+
+  // Initialize Agent mock data
+  generateMockClients();
+  generateMockBills();
 }

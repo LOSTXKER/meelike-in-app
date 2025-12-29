@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { AgentHeader, StatCard, BillStatusBadge } from './components';
 import type { AgentDashboardStats, Bill } from '@/app/types';
-import { getBillStatusLabel } from '@/app/types/bill';
+import { getBillSummary, getRecentBills, getRevenueByPeriod, getBillCountByPeriod } from '@/app/utils/storage/bills';
+import { getClientSummary } from '@/app/utils/storage/clients';
 
 // Icons
 const BillIcon = () => (
@@ -37,45 +38,80 @@ const ArrowRightIcon = () => (
   </svg>
 );
 
-// Mock data for demonstration
-const mockStats: AgentDashboardStats = {
-  today: {
-    bills: 5,
-    revenue: 2350,
-    profit: 780,
-    newClients: 2,
-  },
-  thisMonth: {
-    bills: 45,
-    revenue: 18500,
-    profit: 6200,
-    newClients: 12,
-    avgOrderValue: 411,
-  },
-  allTime: {
-    bills: 156,
-    revenue: 62400,
-    profit: 21800,
-    totalClients: 35,
-  },
-  pending: {
-    pendingBills: 3,
-    processingBills: 5,
-    unreadNotifications: 2,
-    unrepliedReviews: 1,
-  },
-  recentBills: [
-    { id: 'BILL-12345', clientName: 'ร้านกาแฟ A', amount: 450, status: 'pending', createdAt: new Date().toISOString() },
-    { id: 'BILL-12344', clientName: 'คุณ B', amount: 320, status: 'processing', createdAt: new Date(Date.now() - 3600000).toISOString() },
-    { id: 'BILL-12343', clientName: 'ร้านเสื้อผ้า C', amount: 890, status: 'completed', createdAt: new Date(Date.now() - 7200000).toISOString() },
-    { id: 'BILL-12342', clientName: 'คุณ D', amount: 150, status: 'completed', createdAt: new Date(Date.now() - 86400000).toISOString() },
-    { id: 'BILL-12341', clientName: 'ร้านขนม E', amount: 540, status: 'cancelled', createdAt: new Date(Date.now() - 172800000).toISOString() },
-  ],
-};
+const AGENT_ID = 'demo_agent'; // TODO: Get from auth
 
 export default function AgentDashboardPage() {
-  const [stats, setStats] = useState<AgentDashboardStats>(mockStats);
-  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<AgentDashboardStats | null>(null);
+  const [recentBills, setRecentBills] = useState<Bill[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(() => {
+    setLoading(true);
+    try {
+      // Get bill summary
+      const billSummary = getBillSummary(AGENT_ID);
+      
+      // Get client summary
+      const clientSummary = getClientSummary(AGENT_ID);
+      
+      // Get revenue by period
+      const todayRevenue = getRevenueByPeriod(AGENT_ID, 'today');
+      const monthRevenue = getRevenueByPeriod(AGENT_ID, 'month');
+      const allTimeRevenue = getRevenueByPeriod(AGENT_ID, 'all');
+      
+      // Get bill counts
+      const todayBills = getBillCountByPeriod(AGENT_ID, 'today');
+      const monthBills = getBillCountByPeriod(AGENT_ID, 'month');
+      
+      // Get recent bills
+      const recent = getRecentBills(AGENT_ID, 5);
+      setRecentBills(recent);
+      
+      // Build stats
+      const dashboardStats: AgentDashboardStats = {
+        today: {
+          bills: todayBills,
+          revenue: todayRevenue.revenue,
+          profit: todayRevenue.profit,
+          newClients: 0, // TODO: Track new clients by day
+        },
+        thisMonth: {
+          bills: monthBills,
+          revenue: monthRevenue.revenue,
+          profit: monthRevenue.profit,
+          newClients: clientSummary.new,
+          avgOrderValue: monthBills > 0 ? Math.round(monthRevenue.revenue / monthBills) : 0,
+        },
+        allTime: {
+          bills: billSummary.total,
+          revenue: allTimeRevenue.revenue,
+          profit: allTimeRevenue.profit,
+          totalClients: clientSummary.total,
+        },
+        pending: {
+          pendingBills: billSummary.pending,
+          processingBills: billSummary.processing,
+          unreadNotifications: 0,
+          unrepliedReviews: 0,
+        },
+        recentBills: recent.map(bill => ({
+          id: bill.billNumber || bill.id,
+          clientName: bill.clientName,
+          amount: bill.sellPrice || bill.totalAmount,
+          status: bill.status,
+          createdAt: bill.createdAt,
+        })),
+      };
+      
+      setStats(dashboardStats);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Format currency
   const formatCurrency = (value: number) => {
@@ -101,6 +137,20 @@ export default function AgentDashboardPage() {
     return `${days} วันที่แล้ว`;
   };
 
+  if (loading || !stats) {
+    return (
+      <>
+        <AgentHeader
+          title="Dashboard"
+          subtitle="ภาพรวมการดำเนินงานของคุณ"
+        />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <AgentHeader
@@ -112,18 +162,18 @@ export default function AgentDashboardPage() {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Pending Actions Alert */}
           {(stats.pending.pendingBills > 0 || stats.pending.unrepliedReviews > 0) && (
-            <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-800/50 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-warning-emphasis">รอดำเนินการ</p>
-                  <p className="text-sm text-secondary mt-0.5">
-                    คุณมี {stats.pending.pendingBills} บิลรอยืนยัน
-                    {stats.pending.unrepliedReviews > 0 && ` และ ${stats.pending.unrepliedReviews} รีวิวรอตอบกลับ`}
+                  <p className="font-medium text-yellow-800 dark:text-yellow-200">รอดำเนินการ</p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-0.5">
+                    คุณมี {stats.pending.pendingBills} บิลรอชำระเงิน
+                    {stats.pending.processingBills > 0 && ` และ ${stats.pending.processingBills} บิลกำลังดำเนินการ`}
                   </p>
                 </div>
                 <Link
@@ -148,7 +198,6 @@ export default function AgentDashboardPage() {
             <StatCard
               title="กำไรวันนี้"
               value={formatCurrency(stats.today.profit)}
-              trend={{ value: 12, label: 'vs เมื่อวาน' }}
               icon={<ProfitIcon />}
               variant="success"
             />
@@ -161,7 +210,7 @@ export default function AgentDashboardPage() {
             <StatCard
               title="ลูกค้าทั้งหมด"
               value={stats.allTime.totalClients}
-              subtitle={`+${stats.thisMonth.newClients} เดือนนี้`}
+              subtitle={`+${stats.thisMonth.newClients} ใหม่`}
               icon={<ClientsIcon />}
               variant="info"
             />
@@ -181,29 +230,41 @@ export default function AgentDashboardPage() {
                   <ArrowRightIcon />
                 </Link>
               </div>
-              <div className="divide-y divide-default">
-                {stats.recentBills.map((bill) => (
+              {stats.recentBills.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-secondary">ยังไม่มีบิล</p>
                   <Link
-                    key={bill.id}
-                    href={`/agent/orders/${bill.id}`}
-                    className="flex items-center justify-between px-5 py-3 hover:bg-hover transition-colors"
+                    href="/agent/orders/new"
+                    className="inline-block mt-2 text-sm font-medium text-brand-primary hover:underline"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-semibold">
-                        {bill.clientName.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-primary">{bill.clientName}</p>
-                        <p className="text-xs text-tertiary">{bill.id} • {formatTimeAgo(bill.createdAt)}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-primary">{formatCurrency(bill.amount)}</p>
-                      <BillStatusBadge status={bill.status as Bill['status']} size="sm" />
-                    </div>
+                    สร้างบิลใหม่
                   </Link>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="divide-y divide-default">
+                  {stats.recentBills.map((bill) => (
+                    <Link
+                      key={bill.id}
+                      href={`/agent/orders/${bill.id}`}
+                      className="flex items-center justify-between px-5 py-3 hover:bg-hover transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-semibold">
+                          {bill.clientName.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-primary">{bill.clientName}</p>
+                          <p className="text-xs text-tertiary">{bill.id} • {formatTimeAgo(bill.createdAt)}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-primary">{formatCurrency(bill.amount)}</p>
+                        <BillStatusBadge status={bill.status as Bill['status']} size="sm" />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Quick Stats / Pending */}
@@ -214,7 +275,7 @@ export default function AgentDashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-warning"></div>
+                      <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                       <span className="text-sm text-secondary">รอชำระเงิน</span>
                     </div>
                     <span className="font-semibold text-primary">{stats.pending.pendingBills}</span>
@@ -264,7 +325,7 @@ export default function AgentDashboardPage() {
                     <span className="text-xs font-medium text-secondary group-hover:text-primary">สร้างบิล</span>
                   </Link>
                   <Link
-                    href="/agent/clients/new"
+                    href="/agent/clients"
                     className="flex flex-col items-center gap-2 p-3 rounded-lg bg-hover hover:bg-brand-primary/10 transition-colors group"
                   >
                     <div className="w-8 h-8 rounded-full bg-brand-primary/10 group-hover:bg-brand-primary/20 flex items-center justify-center">
@@ -272,7 +333,7 @@ export default function AgentDashboardPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                       </svg>
                     </div>
-                    <span className="text-xs font-medium text-secondary group-hover:text-primary">เพิ่มลูกค้า</span>
+                    <span className="text-xs font-medium text-secondary group-hover:text-primary">จัดการลูกค้า</span>
                   </Link>
                   <Link
                     href="/agent/store"
