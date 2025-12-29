@@ -61,4 +61,42 @@ export {
   hasDailyLoginBadge,
 } from './dailyLogin';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// AGENT SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
 
+// Bills
+export {
+  getBills,
+  getBillById,
+  createBill,
+  updateBillStatus,
+  getBillSummary,
+  deleteBill,
+} from './bills';
+
+// Clients
+export {
+  getClients,
+  getClientById,
+  createClient,
+  updateClient,
+  updateClientStats,
+  getClientStats,
+  deleteClient,
+  getAllClientTags,
+} from './clients';
+
+// Stores
+export {
+  getStoreByAgentId,
+  getStoreByUsername,
+  createStore,
+  updateStore,
+  addStoreService,
+  updateStoreService,
+  removeStoreService,
+  getStoreStats,
+  incrementStoreServiceView,
+  incrementStoreServiceOrder,
+} from './stores';
