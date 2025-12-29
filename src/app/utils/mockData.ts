@@ -19,6 +19,7 @@ import {
 
 import { createClient, getClients } from './storage/clients';
 import { saveBill, getBills } from './storage/bills';
+import { getCoupons, createCoupon, getFlashSales, createFlashSale } from './storage/promotions';
 import type { Bill, BillItem, BillStatus } from '@/app/types/bill';
 import { generateBillId, generateBillNumber } from '@/app/types/bill';
 
@@ -326,6 +327,122 @@ export function generateMockBills(): void {
   console.log('Agent mock bills initialized: 15 bills');
 }
 
+/**
+ * Generate mock promotions for Agent demo
+ */
+export function generateMockPromotions(): void {
+  // Check if coupons already exist
+  const existingCoupons = getCoupons(DEMO_AGENT_ID);
+  if (existingCoupons.length > 0) {
+    console.log('Agent promotions already exist, skipping...');
+    return;
+  }
+
+  // Create sample coupons
+  const now = new Date();
+  const oneMonthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const oneWeekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const coupons = [
+    {
+      code: 'WELCOME10',
+      description: 'ส่วนลดสำหรับลูกค้าใหม่',
+      type: 'percentage' as const,
+      value: 10,
+      maxDiscount: 50,
+      minPurchase: 100,
+      usageLimit: 100,
+      usageLimitPerUser: 1,
+      validFrom: now.toISOString(),
+      validUntil: oneMonthLater.toISOString(),
+    },
+    {
+      code: 'NEWYEAR2025',
+      description: 'โปรโมชั่นปีใหม่ 2025',
+      type: 'percentage' as const,
+      value: 15,
+      maxDiscount: 100,
+      minPurchase: 200,
+      usageLimit: 50,
+      validFrom: now.toISOString(),
+      validUntil: oneWeekLater.toISOString(),
+    },
+    {
+      code: 'SAVE50',
+      description: 'ส่วนลด 50 บาททันที',
+      type: 'fixed' as const,
+      value: 50,
+      minPurchase: 300,
+      usageLimit: 30,
+      usageLimitPerUser: 2,
+      validFrom: now.toISOString(),
+      validUntil: oneMonthLater.toISOString(),
+    },
+    {
+      code: 'VIP20',
+      description: 'สำหรับลูกค้า VIP เท่านั้น',
+      type: 'percentage' as const,
+      value: 20,
+      maxDiscount: 200,
+      minPurchase: 500,
+      usageLimit: 20,
+      applicableClientTiers: ['gold', 'platinum'],
+      validFrom: now.toISOString(),
+      validUntil: oneMonthLater.toISOString(),
+    },
+  ];
+
+  coupons.forEach(coupon => {
+    createCoupon(DEMO_AGENT_ID, coupon);
+  });
+
+  console.log(`Agent mock coupons initialized: ${coupons.length} coupons`);
+
+  // Create sample flash sales
+  const existingFlashSales = getFlashSales(DEMO_AGENT_ID);
+  if (existingFlashSales.length === 0) {
+    const tomorrowStart = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    tomorrowStart.setHours(10, 0, 0, 0);
+    const tomorrowEnd = new Date(tomorrowStart.getTime() + 6 * 60 * 60 * 1000); // 6 hours later
+
+    const flashSales = [
+      {
+        serviceId: 1,
+        serviceName: 'Instagram Followers (คนไทย)',
+        originalPrice: 150,
+        salePrice: 99,
+        totalQuantity: 20,
+        startAt: now.toISOString(),
+        endAt: oneWeekLater.toISOString(),
+      },
+      {
+        serviceId: 2,
+        serviceName: 'TikTok วิว (Fast)',
+        originalPrice: 100,
+        salePrice: 59,
+        totalQuantity: 30,
+        startAt: tomorrowStart.toISOString(),
+        endAt: tomorrowEnd.toISOString(),
+      },
+      {
+        serviceId: 3,
+        serviceName: 'Facebook ถูกใจโพสต์',
+        originalPrice: 80,
+        salePrice: 49,
+        totalQuantity: 50,
+        startAt: now.toISOString(),
+        endAt: oneWeekLater.toISOString(),
+      },
+    ];
+
+    flashSales.forEach(flashSale => {
+      createFlashSale(DEMO_AGENT_ID, flashSale);
+    });
+
+    console.log(`Agent mock flash sales initialized: ${flashSales.length} flash sales`);
+  }
+}
+
 // Function to initialize mock data (call from client component only)
 export function initializeMockData(): void {
   // Always regenerate mock data for testing purposes
@@ -349,4 +466,5 @@ export function initializeMockData(): void {
   // Initialize Agent mock data
   generateMockClients();
   generateMockBills();
+  generateMockPromotions();
 }
