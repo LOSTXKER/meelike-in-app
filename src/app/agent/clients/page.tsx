@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { AgentHeader } from '../components';
 import type { Client, ClientSegment, LoyaltyTier, ClientFilter, ClientSort } from '@/app/types/client';
 import { getSegmentLabel, getSegmentColor, getLoyaltyTierLabel, getLoyaltyTierColor } from '@/app/types/client';
 import {
@@ -521,30 +522,32 @@ export default function AgentClientsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
-      </div>
+      <>
+        <AgentHeader title="จัดการลูกค้า" subtitle="จัดการข้อมูลลูกค้าและติดตามยอดซื้อ" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-primary dark:text-dark-text-dark">จัดการลูกค้า</h1>
-          <p className="text-secondary dark:text-dark-text-light">จัดการข้อมูลลูกค้าและติดตามยอดซื้อ</p>
+    <>
+      <AgentHeader title="จัดการลูกค้า" subtitle="จัดการข้อมูลลูกค้าและติดตามยอดซื้อ" />
+      
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+          >
+            <UserPlusIcon />
+            เพิ่มลูกค้าใหม่
+          </button>
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-primary text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
-        >
-          <UserPlusIcon />
-          เพิ่มลูกค้าใหม่
-        </button>
-      </div>
 
-      {/* Stats Cards */}
+        {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           title="ลูกค้าทั้งหมด"
@@ -730,20 +733,21 @@ export default function AgentClientsPage() {
         )}
       </div>
 
-      {/* Modals */}
-      <AddClientModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddClient}
-        existingTags={existingTags}
-      />
-      
-      <DeleteConfirmModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, client: null })}
-        onConfirm={handleDeleteClient}
-        clientName={deleteModal.client?.name || ''}
-      />
-    </div>
+        {/* Modals */}
+        <AddClientModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={handleAddClient}
+          existingTags={existingTags}
+        />
+        
+        <DeleteConfirmModal
+          isOpen={deleteModal.isOpen}
+          onClose={() => setDeleteModal({ isOpen: false, client: null })}
+          onConfirm={handleDeleteClient}
+          clientName={deleteModal.client?.name || ''}
+        />
+      </div>
+    </>
   );
 }
