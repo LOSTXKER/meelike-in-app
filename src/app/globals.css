@@ -3,22 +3,617 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   🎨 COLOR SYSTEM - CSS Variables
+   ═══════════════════════════════════════════════════════════════════════════
+   
+   วิธีใช้:
+   - ใช้ class เช่น: bg-surface, text-primary, border-default
+   - ไม่ต้องใส่ dark: prefix (เปลี่ยนอัตโนมัติตาม theme)
+   
+   ⚠️ CONTRAST GUIDELINE:
+   - bg-brand (น้ำตาล/เหลือง)  → ใช้ text-on-brand
+   - bg-accent (เหลือง/น้ำตาล) → ใช้ text-on-accent  
+   - bg-success/warning/error  → ใช้ text-on-* ที่ตรงกัน
+   - bg สีอ่อน (subtle)        → ใช้ text-*-emphasis
+   
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  /* ─────────────────────────────────────────────────────────────────────────
+     🌞 LIGHT THEME (Default)
+     ───────────────────────────────────────────────────────────────────────── */
+  :root {
+    /* Background */
+    --color-bg: 255 250 245;           /* #FFFAF5 - พื้นหลังหลัก */
+    --color-surface: 255 255 255;      /* #FFFFFF - การ์ด, modal */
+    --color-surface-hover: 250 247 243;/* #FAF7F3 - hover state */
+    --color-surface-active: 245 240 235;/* #F5F0EB - active state */
+    
+    /* Text */
+    --color-text-primary: 71 59 48;    /* #473B30 - หัวข้อ, text หลัก */
+    --color-text-secondary: 147 112 88;/* #937058 - text รอง */
+    --color-text-muted: 180 160 140;   /* #B4A08C - text จาง */
+    --color-text-inverse: 255 250 245; /* #FFFAF5 - text บน dark bg */
+    
+    /* Brand Colors */
+    --color-primary: 147 112 88;       /* #937058 - สีหลัก (น้ำตาล) */
+    --color-primary-hover: 120 90 70;  /* #785A46 - hover */
+    --color-primary-light: 201 183 171;/* #C9B7AB - light variant */
+    --color-on-primary: 255 250 245;   /* #FFFAF5 - text บน primary (ครีม) ✅ */
+    
+    --color-secondary: 252 215 127;    /* #FCD77F - สีรอง (เหลือง) */
+    --color-secondary-hover: 250 200 100;/* #FAC864 - hover */
+    --color-secondary-light: 253 232 189;/* #FDE8BD - light variant */
+    --color-on-secondary: 71 59 48;    /* #473B30 - text บน secondary (น้ำตาลเข้ม) ✅ */
+    
+    --color-accent: 248 146 162;       /* #F892A2 - accent (ชมพู) */
+    --color-accent-hover: 245 120 140; /* #F5788C - hover */
+    --color-on-accent: 71 59 48;       /* #473B30 - text บน accent (น้ำตาลเข้ม) ✅ */
+    
+    /* Border */
+    --color-border: 234 229 224;       /* #EAE5E0 - border ปกติ */
+    --color-border-light: 245 242 238; /* #F5F2EE - border จาง */
+    --color-border-focus: 147 112 88;  /* #937058 - focus ring */
+    
+    /* ─────────────────────────────────────────────────────────────────────
+       Status Colors - พร้อม on-color สำหรับ contrast ที่ดี
+       ───────────────────────────────────────────────────────────────────── */
+    
+    /* Success */
+    --color-success: 34 197 94;        /* #22C55E - สำเร็จ */
+    --color-success-bg: 220 252 231;   /* #DCFCE7 - success background */
+    --color-success-text: 21 128 61;   /* #15803D - text บน success-bg */
+    --color-on-success: 255 255 255;   /* #FFFFFF - text บน success ✅ */
+    
+    /* Warning (เหลือง - ต้องใช้ text เข้ม!) */
+    --color-warning: 245 158 11;       /* #F59E0B - เตือน */
+    --color-warning-bg: 254 243 199;   /* #FEF3C7 - warning background */
+    --color-warning-text: 161 98 7;    /* #A16207 - text บน warning-bg */
+    --color-on-warning: 71 59 48;      /* #473B30 - text บน warning (น้ำตาลเข้ม) ✅ */
+    
+    /* Error */
+    --color-error: 239 68 68;          /* #EF4444 - ผิดพลาด */
+    --color-error-bg: 254 226 226;     /* #FEE2E2 - error background */
+    --color-error-text: 185 28 28;     /* #B91C1C - text บน error-bg */
+    --color-on-error: 255 255 255;     /* #FFFFFF - text บน error ✅ */
+    
+    /* Info */
+    --color-info: 59 130 246;          /* #3B82F6 - ข้อมูล */
+    --color-info-bg: 219 234 254;      /* #DBEAFE - info background */
+    --color-info-text: 29 78 216;      /* #1D4ED8 - text บน info-bg */
+    --color-on-info: 255 255 255;      /* #FFFFFF - text บน info ✅ */
+    
+    /* ─────────────────────────────────────────────────────────────────────
+       📦 AGENT SYSTEM - Bill Status Colors
+       ───────────────────────────────────────────────────────────────────── */
+    
+    /* Pending - รอชำระ (Amber - ใช้ text เข้ม!) */
+    --color-status-pending: 245 158 11;      /* #F59E0B */
+    --color-status-pending-bg: 254 243 199;  /* #FEF3C7 */
+    --color-status-pending-text: 161 98 7;   /* #A16207 */
+    --color-on-status-pending: 71 59 48;     /* #473B30 - text บน pending ✅ */
+    
+    /* Confirmed - รอดำเนินการ (Blue) */
+    --color-status-confirmed: 59 130 246;    /* #3B82F6 */
+    --color-status-confirmed-bg: 219 234 254;/* #DBEAFE */
+    --color-status-confirmed-text: 29 78 216;/* #1D4ED8 */
+    --color-on-status-confirmed: 255 255 255;/* #FFFFFF ✅ */
+    
+    /* Processing - กำลังทำ (Purple) */
+    --color-status-processing: 139 92 246;   /* #8B5CF6 */
+    --color-status-processing-bg: 237 233 254;/* #EDE9FE */
+    --color-status-processing-text: 109 40 217;/* #6D28D9 */
+    --color-on-status-processing: 255 255 255;/* #FFFFFF ✅ */
+    
+    /* Completed - สำเร็จ (Green) */
+    --color-status-completed: 34 197 94;     /* #22C55E */
+    --color-status-completed-bg: 220 252 231;/* #DCFCE7 */
+    --color-status-completed-text: 21 128 61;/* #15803D */
+    --color-on-status-completed: 255 255 255;/* #FFFFFF ✅ */
+    
+    /* Cancelled - ยกเลิก (Red) */
+    --color-status-cancelled: 239 68 68;     /* #EF4444 */
+    --color-status-cancelled-bg: 254 226 226;/* #FEE2E2 */
+    --color-status-cancelled-text: 185 28 28;/* #B91C1C */
+    --color-on-status-cancelled: 255 255 255;/* #FFFFFF ✅ */
+    
+    /* ─────────────────────────────────────────────────────────────────────
+       💎 SUBSCRIPTION - Badge Colors
+       ───────────────────────────────────────────────────────────────────── */
+    
+    /* Boost Badge (Amber - ใช้ text เข้ม!) */
+    --color-boost: 245 158 11;         /* #F59E0B */
+    --color-boost-bg: 254 243 199;     /* #FEF3C7 */
+    --color-boost-text: 161 98 7;      /* #A16207 - text สำหรับ badge ✅ */
+    
+    /* Boost+ Badge (Purple) */
+    --color-boost-plus: 139 92 246;    /* #8B5CF6 */
+    --color-boost-plus-bg: 237 233 254;/* #EDE9FE */
+    --color-boost-plus-text: 109 40 217;/* #6D28D9 - text สำหรับ badge ✅ */
+    
+    /* ─────────────────────────────────────────────────────────────────────
+       💰 PROFIT/COST Colors
+       ───────────────────────────────────────────────────────────────────── */
+    --color-profit: 34 197 94;         /* #22C55E - กำไร */
+    --color-cost: 100 116 139;         /* #64748B - ต้นทุน */
+    --color-loss: 239 68 68;           /* #EF4444 - ขาดทุน */
+    
+    /* Misc */
+    --color-pattern: 234 229 224;      /* Pattern dots color */
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     🌙 DARK THEME
+     ───────────────────────────────────────────────────────────────────────── */
+  .dark {
+    /* Background */
+    --color-bg: 33 29 26;              /* #211D1A - พื้นหลังหลัก */
+    --color-surface: 44 40 37;         /* #2C2825 - การ์ด, modal */
+    --color-surface-hover: 55 50 45;   /* #37322D - hover state */
+    --color-surface-active: 65 58 52;  /* #413A34 - active state */
+    
+    /* Text */
+    --color-text-primary: 255 250 245; /* #FFFAF5 - หัวข้อ, text หลัก */
+    --color-text-secondary: 201 183 171;/* #C9B7AB - text รอง */
+    --color-text-muted: 140 125 110;   /* #8C7D6E - text จาง */
+    --color-text-inverse: 71 59 48;    /* #473B30 - text บน light bg */
+    
+    /* Brand Colors */
+    --color-primary: 252 215 127;      /* #FCD77F - สีหลัก (เหลืองใน dark) */
+    --color-primary-hover: 250 225 150;/* #FAE196 - hover */
+    --color-primary-light: 180 160 100;/* #B4A064 - light variant */
+    --color-on-primary: 33 29 26;      /* #211D1A - text บน primary (ดำ) ✅ */
+    
+    --color-secondary: 147 112 88;     /* #937058 - สีรอง (น้ำตาล) */
+    --color-secondary-hover: 170 130 100;/* #AA8264 - hover */
+    --color-secondary-light: 100 80 60;/* #64503C - light variant */
+    --color-on-secondary: 255 250 245; /* #FFFAF5 - text บน secondary (ครีม) ✅ */
+    
+    --color-accent: 248 146 162;       /* #F892A2 - accent (ชมพู) */
+    --color-accent-hover: 250 170 180; /* #FAAAB4 - hover */
+    --color-on-accent: 33 29 26;       /* #211D1A - text บน accent (ดำ) ✅ */
+    
+    /* Border */
+    --color-border: 58 53 50;          /* #3A3532 - border ปกติ */
+    --color-border-light: 48 44 40;    /* #302C28 - border จาง */
+    --color-border-focus: 252 215 127; /* #FCD77F - focus ring */
+    
+    /* Status Colors (brighter for dark mode) */
+    --color-success: 74 222 128;       /* #4ADE80 */
+    --color-success-bg: 20 83 45;      /* #14532D */
+    --color-success-text: 134 239 172; /* #86EFAC */
+    --color-on-success: 33 29 26;      /* #211D1A ✅ */
+    
+    --color-warning: 251 191 36;       /* #FBBF24 */
+    --color-warning-bg: 113 63 18;     /* #713F12 */
+    --color-warning-text: 253 224 71;  /* #FDE047 */
+    --color-on-warning: 33 29 26;      /* #211D1A ✅ */
+    
+    --color-error: 248 113 113;        /* #F87171 */
+    --color-error-bg: 127 29 29;       /* #7F1D1D */
+    --color-error-text: 254 202 202;   /* #FECACA */
+    --color-on-error: 33 29 26;        /* #211D1A ✅ */
+    
+    --color-info: 96 165 250;          /* #60A5FA */
+    --color-info-bg: 30 58 138;        /* #1E3A8A */
+    --color-info-text: 191 219 254;    /* #BFDBFE */
+    --color-on-info: 33 29 26;         /* #211D1A ✅ */
+    
+    /* Agent System - Bill Status (brighter for dark mode) */
+    --color-status-pending: 251 191 36;      /* #FBBF24 */
+    --color-status-pending-bg: 113 63 18;    /* #713F12 */
+    --color-status-pending-text: 253 224 71; /* #FDE047 */
+    --color-on-status-pending: 33 29 26;     /* #211D1A ✅ */
+    
+    --color-status-confirmed: 96 165 250;    /* #60A5FA */
+    --color-status-confirmed-bg: 30 58 138;  /* #1E3A8A */
+    --color-status-confirmed-text: 191 219 254;/* #BFDBFE */
+    --color-on-status-confirmed: 33 29 26;   /* #211D1A ✅ */
+    
+    --color-status-processing: 167 139 250;  /* #A78BFA */
+    --color-status-processing-bg: 76 29 149; /* #4C1D95 */
+    --color-status-processing-text: 221 214 254;/* #DDD6FE */
+    --color-on-status-processing: 33 29 26;  /* #211D1A ✅ */
+    
+    --color-status-completed: 74 222 128;    /* #4ADE80 */
+    --color-status-completed-bg: 20 83 45;   /* #14532D */
+    --color-status-completed-text: 134 239 172;/* #86EFAC */
+    --color-on-status-completed: 33 29 26;   /* #211D1A ✅ */
+    
+    --color-status-cancelled: 248 113 113;   /* #F87171 */
+    --color-status-cancelled-bg: 127 29 29;  /* #7F1D1D */
+    --color-status-cancelled-text: 254 202 202;/* #FECACA */
+    --color-on-status-cancelled: 33 29 26;   /* #211D1A ✅ */
+    
+    /* Subscription Badges */
+    --color-boost: 251 191 36;         /* #FBBF24 */
+    --color-boost-bg: 113 63 18;       /* #713F12 */
+    --color-boost-text: 253 224 71;    /* #FDE047 ✅ */
+    
+    --color-boost-plus: 167 139 250;   /* #A78BFA */
+    --color-boost-plus-bg: 76 29 149;  /* #4C1D95 */
+    --color-boost-plus-text: 221 214 254;/* #DDD6FE ✅ */
+    
+    /* Profit/Cost */
+    --color-profit: 74 222 128;        /* #4ADE80 */
+    --color-cost: 148 163 184;         /* #94A3B8 */
+    --color-loss: 248 113 113;         /* #F87171 */
+    
+    /* Misc */
+    --color-pattern: 58 53 50;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   🛠️ UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  /* ─────────────────────────────────────────────────────────────────────────
+     Background Colors
+     ───────────────────────────────────────────────────────────────────────── */
+  .bg-main {
+    background-color: rgb(var(--color-bg));
+  }
+  .bg-surface {
+    background-color: rgb(var(--color-surface));
+  }
+  .bg-surface-hover {
+    background-color: rgb(var(--color-surface-hover));
+  }
+  .bg-surface-active {
+    background-color: rgb(var(--color-surface-active));
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Text Colors
+     ───────────────────────────────────────────────────────────────────────── */
+  .text-primary {
+    color: rgb(var(--color-text-primary));
+  }
+  .text-secondary {
+    color: rgb(var(--color-text-secondary));
+  }
+  .text-muted {
+    color: rgb(var(--color-text-muted));
+  }
+  .text-inverse {
+    color: rgb(var(--color-text-inverse));
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Brand Colors + On-Colors (สำหรับ contrast ที่ดี)
+     ───────────────────────────────────────────────────────────────────────── */
+  .bg-brand {
+    background-color: rgb(var(--color-primary));
+  }
+  .bg-brand-hover {
+    background-color: rgb(var(--color-primary-hover));
+  }
+  .bg-brand-light {
+    background-color: rgb(var(--color-primary-light));
+  }
+  .text-brand {
+    color: rgb(var(--color-primary));
+  }
+  .text-on-brand {
+    color: rgb(var(--color-on-primary));
+  }
+  
+  .bg-accent {
+    background-color: rgb(var(--color-secondary));
+  }
+  .bg-accent-hover {
+    background-color: rgb(var(--color-secondary-hover));
+  }
+  .bg-accent-light {
+    background-color: rgb(var(--color-secondary-light));
+  }
+  .text-accent {
+    color: rgb(var(--color-secondary));
+  }
+  .text-on-accent {
+    color: rgb(var(--color-on-secondary));
+  }
+  
+  .bg-highlight {
+    background-color: rgb(var(--color-accent));
+  }
+  .text-highlight {
+    color: rgb(var(--color-accent));
+  }
+  .text-on-highlight {
+    color: rgb(var(--color-on-accent));
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Border Colors
+     ───────────────────────────────────────────────────────────────────────── */
+  .border-default {
+    border-color: rgb(var(--color-border));
+  }
+  .border-light {
+    border-color: rgb(var(--color-border-light));
+  }
+  .ring-focus {
+    --tw-ring-color: rgb(var(--color-border-focus));
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Status Colors + On-Colors
+     ───────────────────────────────────────────────────────────────────────── */
+  .bg-success { background-color: rgb(var(--color-success)); }
+  .bg-success-subtle { background-color: rgb(var(--color-success-bg)); }
+  .text-success { color: rgb(var(--color-success)); }
+  .text-success-emphasis { color: rgb(var(--color-success-text)); }
+  .text-on-success { color: rgb(var(--color-on-success)); }
+  
+  .bg-warning { background-color: rgb(var(--color-warning)); }
+  .bg-warning-subtle { background-color: rgb(var(--color-warning-bg)); }
+  .text-warning { color: rgb(var(--color-warning)); }
+  .text-warning-emphasis { color: rgb(var(--color-warning-text)); }
+  .text-on-warning { color: rgb(var(--color-on-warning)); }
+  
+  .bg-error { background-color: rgb(var(--color-error)); }
+  .bg-error-subtle { background-color: rgb(var(--color-error-bg)); }
+  .text-error { color: rgb(var(--color-error)); }
+  .text-error-emphasis { color: rgb(var(--color-error-text)); }
+  .text-on-error { color: rgb(var(--color-on-error)); }
+  
+  .bg-info { background-color: rgb(var(--color-info)); }
+  .bg-info-subtle { background-color: rgb(var(--color-info-bg)); }
+  .text-info { color: rgb(var(--color-info)); }
+  .text-info-emphasis { color: rgb(var(--color-info-text)); }
+  .text-on-info { color: rgb(var(--color-on-info)); }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     📦 Bill Status Classes
+     ใช้: <span className="status-pending">รอชำระ</span>
+     ───────────────────────────────────────────────────────────────────────── */
+  .status-pending {
+    background-color: rgb(var(--color-status-pending-bg));
+    color: rgb(var(--color-status-pending-text));
+  }
+  .status-confirmed {
+    background-color: rgb(var(--color-status-confirmed-bg));
+    color: rgb(var(--color-status-confirmed-text));
+  }
+  .status-processing {
+    background-color: rgb(var(--color-status-processing-bg));
+    color: rgb(var(--color-status-processing-text));
+  }
+  .status-completed {
+    background-color: rgb(var(--color-status-completed-bg));
+    color: rgb(var(--color-status-completed-text));
+  }
+  .status-cancelled {
+    background-color: rgb(var(--color-status-cancelled-bg));
+    color: rgb(var(--color-status-cancelled-text));
+  }
+  
+  /* Status dot (bullet) */
+  .status-dot-pending { background-color: rgb(var(--color-status-pending)); }
+  .status-dot-confirmed { background-color: rgb(var(--color-status-confirmed)); }
+  .status-dot-processing { background-color: rgb(var(--color-status-processing)); }
+  .status-dot-completed { background-color: rgb(var(--color-status-completed)); }
+  .status-dot-cancelled { background-color: rgb(var(--color-status-cancelled)); }
+  
+  /* On-status colors (for text/icon on status color) */
+  .text-on-status-pending { color: rgb(var(--color-on-status-pending)); }
+  .text-on-status-confirmed { color: rgb(var(--color-on-status-confirmed)); }
+  .text-on-status-processing { color: rgb(var(--color-on-status-processing)); }
+  .text-on-status-completed { color: rgb(var(--color-on-status-completed)); }
+  .text-on-status-cancelled { color: rgb(var(--color-on-status-cancelled)); }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     💎 Subscription Badge Classes (แก้ไข contrast)
+     ใช้: <span className="badge-boost">🌟 Boost</span>
+     ───────────────────────────────────────────────────────────────────────── */
+  .badge-boost {
+    background-color: rgb(var(--color-boost-bg));
+    color: rgb(var(--color-boost-text));
+  }
+  .badge-boost-plus {
+    background-color: rgb(var(--color-boost-plus-bg));
+    color: rgb(var(--color-boost-plus-text));
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     💰 Profit/Cost Colors
+     ───────────────────────────────────────────────────────────────────────── */
+  .text-profit { color: rgb(var(--color-profit)); }
+  .text-cost { color: rgb(var(--color-cost)); }
+  .text-loss { color: rgb(var(--color-loss)); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   📦 COMPONENT CLASSES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ─────────────────────────────────────────────────────────────────────────
+     Card Component
+     ใช้: <div className="card">...</div>
+     ───────────────────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-surface rounded-xl shadow-md border border-default;
+  }
+  .card-hover {
+    @apply card hover:bg-surface-hover transition-colors;
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Button Components (แก้ไข contrast!)
+     ใช้: <button className="btn-primary">สั่งซื้อ</button>
+     
+     ⚠️ หลักการ:
+     - btn-primary: bg-brand (น้ำตาล/เหลือง) + text-on-brand
+     - btn-secondary: bg-accent (เหลือง/น้ำตาล) + text-on-accent
+     ───────────────────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply bg-brand text-on-brand font-semibold rounded-lg px-4 py-2
+           hover:bg-brand-hover transition-colors
+           focus:outline-none focus:ring-2 ring-focus;
+  }
+  .btn-secondary {
+    @apply bg-accent text-on-accent font-semibold rounded-lg px-4 py-2
+           hover:bg-accent-hover transition-colors
+           focus:outline-none focus:ring-2 ring-focus;
+  }
+  .btn-outline {
+    @apply bg-transparent border border-default text-primary font-semibold 
+           rounded-lg px-4 py-2 hover:bg-surface-hover transition-colors
+           focus:outline-none focus:ring-2 ring-focus;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-secondary font-semibold rounded-lg px-4 py-2
+           hover:bg-surface-hover hover:text-primary transition-colors;
+  }
+  
+  /* Status Buttons (สำหรับ action buttons) */
+  .btn-success {
+    @apply bg-success text-on-success font-semibold rounded-lg px-4 py-2
+           hover:opacity-90 transition-opacity
+           focus:outline-none focus:ring-2 focus:ring-success/50;
+  }
+  .btn-warning {
+    @apply bg-warning text-on-warning font-semibold rounded-lg px-4 py-2
+           hover:opacity-90 transition-opacity
+           focus:outline-none focus:ring-2 focus:ring-warning/50;
+  }
+  .btn-error {
+    @apply bg-error text-on-error font-semibold rounded-lg px-4 py-2
+           hover:opacity-90 transition-opacity
+           focus:outline-none focus:ring-2 focus:ring-error/50;
+  }
+  .btn-info {
+    @apply bg-info text-on-info font-semibold rounded-lg px-4 py-2
+           hover:opacity-90 transition-opacity
+           focus:outline-none focus:ring-2 focus:ring-info/50;
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Input Components
+     ใช้: <input className="input" />
+     ───────────────────────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full bg-main border border-default rounded-lg py-2.5 px-4
+           text-primary placeholder:text-muted
+           focus:ring-2 ring-focus focus:border-transparent focus:outline-none
+           transition-colors;
+  }
+  .input-error {
+    @apply input border-error focus:ring-error;
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Badge Components
+     ใช้: <span className="badge badge-success">สำเร็จ</span>
+     ───────────────────────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+  .badge-success { @apply bg-success-subtle text-success-emphasis; }
+  .badge-warning { @apply bg-warning-subtle text-warning-emphasis; }
+  .badge-error { @apply bg-error-subtle text-error-emphasis; }
+  .badge-info { @apply bg-info-subtle text-info-emphasis; }
+  
+  /* Solid badges (สีเข้ม + text contrast) */
+  .badge-success-solid { @apply bg-success text-on-success; }
+  .badge-warning-solid { @apply bg-warning text-on-warning; }
+  .badge-error-solid { @apply bg-error text-on-error; }
+  .badge-info-solid { @apply bg-info text-on-info; }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Status Badge (with dot)
+     ใช้: <span className="status-badge status-badge-pending">รอชำระ</span>
+     ───────────────────────────────────────────────────────────────────────── */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  .status-badge::before {
+    content: '';
+    @apply w-2 h-2 rounded-full;
+  }
+  .status-badge-pending {
+    @apply status-pending;
+  }
+  .status-badge-pending::before {
+    @apply status-dot-pending;
+  }
+  .status-badge-confirmed {
+    @apply status-confirmed;
+  }
+  .status-badge-confirmed::before {
+    @apply status-dot-confirmed;
+  }
+  .status-badge-processing {
+    @apply status-processing;
+  }
+  .status-badge-processing::before {
+    @apply status-dot-processing;
+  }
+  .status-badge-completed {
+    @apply status-completed;
+  }
+  .status-badge-completed::before {
+    @apply status-dot-completed;
+  }
+  .status-badge-cancelled {
+    @apply status-cancelled;
+  }
+  .status-badge-cancelled::before {
+    @apply status-dot-cancelled;
+  }
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     Alert Components (แก้ไข contrast)
+     ใช้: <div className="alert alert-warning">...</div>
+     ───────────────────────────────────────────────────────────────────────── */
+  .alert {
+    @apply p-4 rounded-lg border;
+  }
+  .alert-success {
+    @apply bg-success-subtle border-success/30 text-success-emphasis;
+  }
+  .alert-warning {
+    @apply bg-warning-subtle border-warning/30 text-warning-emphasis;
+  }
+  .alert-error {
+    @apply bg-error-subtle border-error/30 text-error-emphasis;
+  }
+  .alert-info {
+    @apply bg-info-subtle border-info/30 text-info-emphasis;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   📝 TYPOGRAPHY & MISC
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 body {
-    font-family: 'Sarabun', sans-serif;
-    font-size: 16px; /* ขนาดฟอนต์มาตรฐาน */
+  font-family: 'Sarabun', sans-serif;
+  font-size: 16px;
+  @apply bg-main text-primary;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { 
-    width: 8px; 
+  width: 8px; 
 }
 ::-webkit-scrollbar-track { 
-    background: transparent; 
+  background: transparent; 
 }
 ::-webkit-scrollbar-thumb { 
-    background: #C9B7AB; 
-    border-radius: 10px; 
+  background: rgb(var(--color-border));
+  border-radius: 10px; 
 }
-.dark ::-webkit-scrollbar-thumb { 
-    background: #3a3532; 
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-text-muted));
+}
+
+/* Pattern background */
+:root {
+  --pattern-color: rgb(var(--color-pattern));
 }
