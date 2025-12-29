@@ -11,6 +11,10 @@ const ChartComponent = dynamic(() => import('./components/ChartComponent'), { ss
 const DashboardSurveyBanner = dynamic(() => import('./components/DashboardSurveyBanner'), { ssr: false });
 const DashboardLeaderboard = dynamic(() => import('./components/DashboardLeaderboard'), { ssr: false });
 const DailyLoginWidget = dynamic(() => import('./components/DailyLoginWidget'), { ssr: false }); 
+const LeaderboardInfoModal = dynamic(() => import('./components/LeaderboardInfoModal'), { ssr: false });
+const DailyLoginInfoModal = dynamic(() => import('./components/DailyLoginInfoModal'), { ssr: false });
+const NewsPopupModal = dynamic(() => import('./components/NewsPopupModal'), { ssr: false });
+const DailyLoginModal = dynamic(() => import('./components/DailyLoginModal'), { ssr: false }); 
 
 // --- Icons ---
 const CheckIcon = () => <svg className="w-5 h-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>;
@@ -304,6 +308,12 @@ export default function DashboardPage() {
               </tr>
           </Table>
       </div>
+
+      {/* Modals */}
+      <NewsPopupModal />
+      <DailyLoginModal />
+      <LeaderboardInfoModal />
+      <DailyLoginInfoModal />
     </main>
   );
 }

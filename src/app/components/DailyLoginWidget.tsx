@@ -76,12 +76,23 @@ export default function DailyLoginWidget() {
               Daily Login
             </h3>
           </div>
-          {displayStreak > 0 && (
-            <div className="flex items-center gap-1 bg-brand-secondary/20 dark:bg-dark-primary/20 px-2.5 py-1 rounded-full">
-              <FireIcon className="w-4 h-4 text-brand-primary dark:text-dark-primary" />
-              <span className="text-sm font-bold text-brand-primary dark:text-dark-primary">{displayStreak}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {displayStreak > 0 && (
+              <div className="flex items-center gap-1 bg-brand-secondary/20 dark:bg-dark-primary/20 px-2.5 py-1 rounded-full">
+                <FireIcon className="w-4 h-4 text-brand-primary dark:text-dark-primary" />
+                <span className="text-sm font-bold text-brand-primary dark:text-dark-primary">{displayStreak}</span>
+              </div>
+            )}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('openDailyLoginInfo'))}
+              className="p-1.5 text-brand-text-light hover:text-brand-text-dark dark:text-dark-text-light dark:hover:text-dark-text-dark hover:bg-brand-bg dark:hover:bg-dark-bg rounded-lg transition-colors"
+              title="ดูรายละเอียด"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

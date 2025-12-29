@@ -41,13 +41,23 @@ export default function DailyLoginModal({ forceOpen = false, onClose }: DailyLog
     setCanClaim(canClaimNow);
     setStreakValid(isStreakValid());
 
-    // Auto open if can claim and not forceOpen mode
-    if (canClaimNow && !forceOpen) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    // Don't auto-open here - wait for news popup to close first
+  }, [forceOpen]);
+
+  // Listen for news popup closed event to auto-open
+  useEffect(() => {
+    const handleNewsPopupClosed = () => {
+      // Check if can claim and auto-open after news popup closes
+      if (canClaimToday() && !forceOpen) {
+        const timer = setTimeout(() => {
+          setIsOpen(true);
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    };
+
+    window.addEventListener('newsPopupClosed', handleNewsPopupClosed);
+    return () => window.removeEventListener('newsPopupClosed', handleNewsPopupClosed);
   }, [forceOpen]);
 
   // Handle force open

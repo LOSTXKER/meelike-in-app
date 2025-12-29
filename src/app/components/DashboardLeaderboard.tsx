@@ -219,12 +219,25 @@ export default function DashboardLeaderboard() {
             </div>
           </div>
           
-          {/* Countdown */}
-          <div className="flex items-center gap-1.5 bg-brand-bg dark:bg-dark-bg rounded-full px-3 py-1.5 border border-brand-border dark:border-dark-border">
-            <ClockIcon className="w-3.5 h-3.5 text-brand-primary dark:text-dark-primary" />
-            <span className="text-xs font-bold text-brand-text-dark dark:text-dark-text-light tabular-nums">
-              {countdown.days}d {countdown.hours}h {countdown.minutes}m
-            </span>
+          <div className="flex items-center gap-2">
+            {/* Countdown */}
+            <div className="flex items-center gap-1.5 bg-brand-bg dark:bg-dark-bg rounded-full px-3 py-1.5 border border-brand-border dark:border-dark-border">
+              <ClockIcon className="w-3.5 h-3.5 text-brand-primary dark:text-dark-primary" />
+              <span className="text-xs font-bold text-brand-text-dark dark:text-dark-text-light tabular-nums">
+                {countdown.days}d {countdown.hours}h {countdown.minutes}m
+              </span>
+            </div>
+
+            {/* Info Button */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('openLeaderboardInfo'))}
+              className="p-1.5 text-brand-text-light hover:text-brand-text-dark dark:text-dark-text-light dark:hover:text-dark-text-dark hover:bg-brand-bg dark:hover:bg-dark-bg rounded-lg transition-colors"
+              title="ดูรายละเอียด"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
           </div>
         </div>
 
