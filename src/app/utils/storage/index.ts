@@ -4,7 +4,7 @@
 // ==============================================
 
 // Base utilities
-export { isBrowser, getItem, setItem, removeItem, hasItem, getRawItem, setRawItem, getFromStorage, saveToStorage, generateId } from './base';
+export { isBrowser, getItem, setItem, removeItem, hasItem, getRawItem, setRawItem } from './base';
 
 // Survey
 export { saveSurvey, getSurvey, hasSurvey, clearSurvey } from './survey';
@@ -61,42 +61,4 @@ export {
   hasDailyLoginBadge,
 } from './dailyLogin';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// AGENT SYSTEM
-// ═══════════════════════════════════════════════════════════════════════════
 
-// Bills
-export {
-  getBills,
-  getBillById,
-  createBill,
-  updateBillStatus,
-  getBillSummary,
-  deleteBill,
-} from './bills';
-
-// Clients
-export {
-  getClients,
-  getClientById,
-  createClient,
-  updateClient,
-  updateClientStats,
-  getClientStats,
-  deleteClient,
-  getAllClientTags,
-} from './clients';
-
-// Stores
-export {
-  getStoreByAgentId,
-  getStoreByUsername,
-  createStore,
-  updateStore,
-  addStoreService,
-  updateStoreService,
-  removeStoreService,
-  getStoreStats,
-  incrementStoreServiceView,
-  incrementStoreServiceOrder,
-} from './stores';

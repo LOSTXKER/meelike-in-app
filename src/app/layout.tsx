@@ -13,11 +13,6 @@ import React from "react"; // Import React
 const MockDataInitializer = dynamic(() => import("./components/MockDataInitializer"), { ssr: false });
 const DailyLoginModal = dynamic(() => import("./components/DailyLoginModal"), { ssr: false });
 
-// Agent System Mock Data
-if (typeof window !== 'undefined') {
-  import('./utils/mockAgentData');
-}
-
 const sarabun = Sarabun({
   subsets: ["latin", "thai"],
   weight: ["400", "500", "600", "700", "800"],
