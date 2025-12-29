@@ -3,6 +3,16 @@
 // All shared types and interfaces used across the application
 // ==============================================
 
+// Re-export Agent System Types
+export * from './agent';
+export * from './bill';
+export * from './client';
+export * from './store';
+export * from './promotion';
+export * from './agentReview';
+export * from './template';
+export * from './notification';
+
 // ==============================================
 // SURVEY TYPES
 // ==============================================
