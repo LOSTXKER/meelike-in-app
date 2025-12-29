@@ -221,8 +221,10 @@ export default function Sidebar() {
                     <LinkItem href="/history" icon={OrderHistoryIcon} label="ประวัติการสั่งซื้อ" />
                     
                     {/* --- NEW AGENT SECTION --- */}
-                    <NavHeader title="สำหรับตัวแทน" />
-                    <LinkItem href="/agent" icon={BriefcaseIcon} label="Agent Dashboard" />
+                    <NavHeader title="Agent Center 🏪" />
+                    <LinkItem href="/agent" icon={BriefcaseIcon} label="Dashboard" />
+                    <LinkItem href="/agent/new-order" icon={NewOrderIcon} label="สร้างบิลใหม่" />
+                    <LinkItem href="/agent/clients" icon={BriefcaseIcon} label="จัดการลูกค้า" />
 
                     <NavHeader title="กระเป๋าเงิน" />
                     <LinkItem href="/add-funds" icon={AddFundsIcon} label="เติมเงิน" />
