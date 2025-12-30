@@ -7,6 +7,7 @@ import { getClientSummary } from '@/app/utils/storage/clients';
 import { getStoreRatingSummary } from '@/app/utils/storage/agentReviews';
 import { getPromotionSummary } from '@/app/utils/storage/promotions';
 import type { Bill, BillStatus, BillSummary } from '@/app/types/bill';
+import type { ClientSummary } from '@/app/types/client';
 import type { StoreRatingSummary } from '@/app/types/agentReview';
 import type { PromotionSummary } from '@/app/types/promotion';
 
@@ -61,7 +62,7 @@ export default function AgentAnalyticsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const [bills, setBills] = useState<Bill[]>([]);
   const [billSummary, setBillSummary] = useState<BillSummary | null>(null);
-  const [clientSummary, setClientSummary] = useState<{ total: number; active: number; new: number } | null>(null);
+  const [clientSummary, setClientSummary] = useState<ClientSummary | null>(null);
   const [ratingSummary, setRatingSummary] = useState<StoreRatingSummary | null>(null);
   const [promotionSummary, setPromotionSummary] = useState<PromotionSummary | null>(null);
 
@@ -129,7 +130,7 @@ export default function AgentAnalyticsPage() {
         if (!serviceRevenue[item.serviceName]) {
           serviceRevenue[item.serviceName] = { revenue: 0, count: 0 };
         }
-        serviceRevenue[item.serviceName].revenue += item.totalSell;
+        serviceRevenue[item.serviceName].revenue += item.salePrice;
         serviceRevenue[item.serviceName].count++;
       });
     }

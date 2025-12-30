@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Remove static export to support dynamic routes
+  // output: 'export',
 };
 
 module.exports = nextConfig;

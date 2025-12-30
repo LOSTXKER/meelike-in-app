@@ -299,20 +299,20 @@ export default function OrderStatusPage({ params }: { params: Promise<{ slug: st
                       <p className="text-sm text-secondary">จำนวน: {item.quantity.toLocaleString()}</p>
                       <p className="text-xs text-tertiary mt-1 break-all">{item.link}</p>
                     </div>
-                    <p className="font-semibold text-primary">{formatCurrency(item.totalSell)}</p>
+                    <p className="font-semibold text-primary">{formatCurrency(item.salePrice)}</p>
                   </div>
                   
                   {/* Item Progress */}
-                  {item.progress > 0 && item.progress < 100 && (
+                  {(item.progress ?? 0) > 0 && (item.progress ?? 0) < 100 && (
                     <div className="mt-3">
                       <div className="flex justify-between text-xs text-secondary mb-1">
                         <span>ความคืบหน้า</span>
-                        <span>{item.progress}%</span>
+                        <span>{item.progress ?? 0}%</span>
                       </div>
                       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-brand-primary transition-all"
-                          style={{ width: `${item.progress}%` }}
+                          style={{ width: `${item.progress ?? 0}%` }}
                         />
                       </div>
                       <p className="text-xs text-tertiary mt-1">

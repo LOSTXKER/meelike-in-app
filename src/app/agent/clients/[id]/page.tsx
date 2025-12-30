@@ -364,7 +364,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
                           {formatDate(bill.createdAt)}
                         </td>
                         <td className="px-4 py-3 text-right font-medium">
-                          {formatCurrency(bill.sellPrice)}
+                          {formatCurrency(bill.totalAmount)}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <span className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full ${getBillStatusColor(bill.status)}`}>

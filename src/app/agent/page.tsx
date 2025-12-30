@@ -97,7 +97,7 @@ export default function AgentDashboardPage() {
         recentBills: recent.map(bill => ({
           id: bill.billNumber || bill.id,
           clientName: bill.clientName,
-          amount: bill.sellPrice || bill.totalAmount,
+          amount: bill.totalAmount,
           status: bill.status,
           createdAt: bill.createdAt,
         })),

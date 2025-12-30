@@ -168,18 +168,18 @@ export default function NewOrderPage() {
       
       const billItem: BillItem = {
         id: `item_${Date.now()}`,
-        serviceId: selectedService!.id,
+        serviceId: parseInt(selectedService!.id) || 0,
         serviceName: selectedService!.name,
-        quantity: qty,
-        unitPrice: selectedService!.cost,
-        sellPrice: sale / qty,
-        totalCost: costPrice,
-        totalSell: sale,
-        profit: sale - costPrice,
+        category: selectedService!.category || 'general',
         link,
-        status: 'pending',
-        progress: 0,
-        currentCount: 0,
+        quantity: qty,
+        unitCost: selectedService!.cost,
+        baseCost: costPrice,
+        agentDiscount: 0,
+        actualCost: costPrice,
+        salePrice: sale,
+        profit: sale - costPrice,
+        profitMargin: ((sale - costPrice) / sale) * 100,
       };
       
       // Create bill
@@ -187,19 +187,19 @@ export default function NewOrderPage() {
         id: generateBillId(),
         billNumber: generateBillNumber(),
         agentId: AGENT_ID,
+        agentUsername: 'demo_store',
         clientId,
         clientName,
         clientContact,
         items: [billItem],
+        subtotal: sale,
         totalCost: costPrice,
-        sellPrice: sale,
-        totalAmount: sale,
         totalProfit: sale - costPrice,
+        totalAmount: sale,
         status: 'pending',
-        source: 'agent',
-        note: note || undefined,
+        source: 'manual',
+        customerNote: note || undefined,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       };
       
       saveBill(bill);

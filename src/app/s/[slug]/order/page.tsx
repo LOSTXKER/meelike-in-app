@@ -187,7 +187,7 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
         clientContact: customerContact,
         items: [billItem],
         subtotal: calculations.subtotal,
-        totalCost: billItem.totalCost,
+        totalCost: billItem.actualCost,
         couponCode: appliedCoupon?.code,
         couponDiscount: discountAmount,
         totalAmount: finalTotal,

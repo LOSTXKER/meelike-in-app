@@ -56,7 +56,8 @@ export interface BillItem {
  * Bill - บิลสำหรับลูกค้าของ Agent
  */
 export interface Bill {
-  id: string;              // BILL-XXXXX (5 หลักสุ่ม)
+  id: string;              // Unique ID
+  billNumber: string;      // BILL-XXXXX (หมายเลขบิลแสดงผล)
   
   // Agent Info
   agentId: string;

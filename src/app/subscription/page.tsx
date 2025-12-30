@@ -54,16 +54,17 @@ const FEATURES: PlanFeature[] = [
   { name: 'Priority Support', free: false, boost: false, boostPlus: true },
 ];
 
+type PlanType = 'free' | 'boost' | 'boostPlus';
+
 export default function SubscriptionPage() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  const [currentPlan] = useState<PlanType>('boost'); // Mock current plan
   
   const prices = {
     free: { monthly: 0, yearly: 0 },
     boost: { monthly: 149, yearly: 1490 }, // 2 months free
     boostPlus: { monthly: 399, yearly: 3990 }, // 2 months free
   };
-
-  const currentPlan = 'boost'; // Mock current plan
 
   return (
     <div className="min-h-screen bg-main">

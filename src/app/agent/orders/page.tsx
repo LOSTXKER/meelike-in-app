@@ -256,7 +256,7 @@ export default function OrdersPage() {
                         </td>
                         <td className="px-4 py-4 text-right">
                           <p className="font-semibold text-primary">
-                            {formatCurrency(bill.sellPrice || bill.totalAmount)}
+                            {formatCurrency(bill.totalAmount)}
                           </p>
                         </td>
                         <td className="px-4 py-4 text-right">
