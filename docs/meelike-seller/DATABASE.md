@@ -254,59 +254,118 @@ interface StoreThemeConfig {
 // ===== ORDER =====
 interface Order {
   id: string;
-  orderNumber: string;
+  orderNumber: string;        // e.g. "ORD-2024-001"
   
-  // Parties
+  // Seller
   sellerId: string;
-  buyerId?: string;
-  buyerName: string;
-  buyerContact: string;
   
-  // Service
-  serviceId: string;
-  serviceName: string;
-  serviceType: 'bot' | 'human';
+  // Customer Info
+  customer: {
+    name: string;
+    contactType: 'line' | 'facebook' | 'phone' | 'email';
+    contactValue: string;
+    note?: string;
+  };
   
-  // Target
-  targetUrl: string;
-  quantity: number;
+  // Order Items (หลายรายการ)
+  items: OrderItem[];
   
-  // Pricing
-  unitPrice: number;
+  // Pricing Summary
   subtotal: number;
   discount: number;
   total: number;
-  
-  // Cost (for seller)
-  costPrice: number;
-  profit: number;
-  
-  // Status
-  status: 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled';
-  
-  // Progress
-  progress?: number;
-  completedQuantity?: number;
+  totalCost: number;
+  totalProfit: number;
   
   // Payment
-  isPaid: boolean;
-  paidAt?: string;
-  paymentMethod?: string;
+  paymentStatus: 'pending' | 'paid' | 'refunded';
   paymentProof?: string;
+  paidAt?: string;
   
-  // Bot/Human Order
-  meelikeOrderId?: string;
-  jobId?: string;
+  // Status (overall)
+  status: 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled';
+  progress: number;           // 0-100 overall progress
   
   // Notes
-  customerNote?: string;
   sellerNote?: string;
+  
+  // Tracking
+  trackingUrl: string;        // seller.meelike.com/track/ORD-2024-001
   
   // Timestamps
   createdAt: string;
   updatedAt: string;
   confirmedAt?: string;
   completedAt?: string;
+}
+
+// ===== ORDER ITEM =====
+interface OrderItem {
+  id: string;
+  orderId: string;
+  
+  // Service Info
+  serviceId: string;
+  serviceName: string;
+  serviceType: 'bot' | 'human';
+  platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter';
+  type: 'like' | 'comment' | 'follow' | 'share' | 'view';
+  
+  // Target
+  targetUrl: string;
+  quantity: number;
+  
+  // For Comment
+  commentTemplates?: string[];
+  
+  // Pricing
+  unitPrice: number;
+  subtotal: number;
+  
+  // Cost (for seller)
+  costPerUnit: number;
+  totalCost: number;
+  profit: number;
+  profitPercent: number;
+  
+  // Progress
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  progress: number;           // 0-100
+  completedQuantity: number;
+  
+  // Execution
+  meelikeOrderId?: string;    // For Bot orders
+  jobId?: string;             // For Human orders
+  
+  // Timestamps
+  startedAt?: string;
+  completedAt?: string;
+}
+
+// ===== ORDER TIMELINE =====
+interface OrderTimeline {
+  id: string;
+  orderId: string;
+  
+  // Event
+  event: 
+    | 'created' 
+    | 'paid' 
+    | 'confirmed' 
+    | 'bot_started' 
+    | 'bot_completed'
+    | 'job_created'
+    | 'job_progress'
+    | 'job_completed'
+    | 'completed'
+    | 'cancelled';
+  
+  // Details
+  itemId?: string;
+  message: string;
+  
+  // Timestamp
+  createdAt: string;
 }
 ```
 
