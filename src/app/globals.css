@@ -1,24 +1,247 @@
-/* src/app/globals.css */
+/* src/app/globals.css - MeeLike Seller Theme */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* === MeeLike Light Theme === */
+    --brand-bg: #FFFAF5;
+    --brand-surface: #FFFFFF;
+    --brand-text-dark: #473B30;
+    --brand-text-light: #937058;
+    --brand-primary: #937058;
+    --brand-primary-light: #C9B7AB;
+    --brand-secondary: #FCD77F;
+    --brand-secondary-light: #FDE8BD;
+    --brand-accent: #F892A2;
+    --brand-border: #EAE5E0;
+    
+    /* System Colors */
+    --brand-success: #6A994E;
+    --brand-warning: #FCD77F;
+    --brand-error: #BC4749;
+    --brand-info: #A6CDE3;
+    
+    /* Foreground colors for badges */
+    --brand-success-fg: #3d5c2e;
+    --brand-warning-fg: #7a6017;
+    --brand-error-fg: #8a3335;
+    --brand-info-fg: #4a7a94;
+  }
+
+  .dark {
+    /* === MeeLike Dark Theme === */
+    --brand-bg: #211d1a;
+    --brand-surface: #2c2825;
+    --brand-text-dark: #FFFAF5;
+    --brand-text-light: #C9B7AB;
+    --brand-primary: #FCD77F;
+    --brand-primary-light: #937058;
+    --brand-secondary: #937058;
+    --brand-secondary-light: #5a4639;
+    --brand-accent: #F892A2;
+    --brand-border: #3a3532;
+    
+    /* System Colors (Dark) */
+    --brand-success: #8bc76b;
+    --brand-warning: #FCD77F;
+    --brand-error: #e06467;
+    --brand-info: #bbd9eb;
+    
+    /* Foreground colors for badges (Dark) */
+    --brand-success-fg: #8bc76b;
+    --brand-warning-fg: #FCD77F;
+    --brand-error-fg: #e06467;
+    --brand-info-fg: #bbd9eb;
+  }
+}
+
 body {
-    font-family: 'Sarabun', sans-serif;
-    font-size: px; /* <-- ปรับขนาดฟอนต์พื้นฐานที่นี่ */
+  font-family: 'Sarabun', sans-serif;
+  font-size: 16px;
+  background-color: var(--brand-bg);
+  color: var(--brand-text-dark);
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { 
-    width: 8px; 
+  width: 8px; 
 }
 ::-webkit-scrollbar-track { 
-    background: transparent; 
+  background: transparent; 
 }
 ::-webkit-scrollbar-thumb { 
-    background: #C9B7AB; 
-    border-radius: 10px; 
+  background: var(--brand-primary-light); 
+  border-radius: 10px; 
 }
 .dark ::-webkit-scrollbar-thumb { 
-    background: #3a3532; 
+  background: var(--brand-border); 
+}
+
+/* === Utility Classes === */
+@layer utilities {
+  /* Background colors */
+  .bg-brand-bg { background-color: var(--brand-bg); }
+  .bg-brand-surface { background-color: var(--brand-surface); }
+  .bg-brand-primary { background-color: var(--brand-primary); }
+  .bg-brand-primary-light { background-color: var(--brand-primary-light); }
+  .bg-brand-secondary { background-color: var(--brand-secondary); }
+  .bg-brand-secondary-light { background-color: var(--brand-secondary-light); }
+  .bg-brand-accent { background-color: var(--brand-accent); }
+  .bg-brand-success { background-color: var(--brand-success); }
+  .bg-brand-warning { background-color: var(--brand-warning); }
+  .bg-brand-error { background-color: var(--brand-error); }
+  .bg-brand-info { background-color: var(--brand-info); }
+  
+  /* Text colors */
+  .text-brand-dark { color: var(--brand-text-dark); }
+  .text-brand-light { color: var(--brand-text-light); }
+  .text-brand-primary { color: var(--brand-primary); }
+  .text-brand-secondary { color: var(--brand-secondary); }
+  .text-brand-accent { color: var(--brand-accent); }
+  .text-brand-success { color: var(--brand-success); }
+  .text-brand-warning { color: var(--brand-warning); }
+  .text-brand-error { color: var(--brand-error); }
+  .text-brand-info { color: var(--brand-info); }
+  
+  /* Border colors */
+  .border-brand { border-color: var(--brand-border); }
+  .border-brand-primary { border-color: var(--brand-primary); }
+  .border-brand-success { border-color: var(--brand-success); }
+  .border-brand-error { border-color: var(--brand-error); }
+  
+  /* Hover states */
+  .hover\:bg-brand-primary:hover { background-color: var(--brand-primary); }
+  .hover\:bg-brand-primary-light:hover { background-color: var(--brand-primary-light); }
+  
+  /* Focus states */
+  .focus\:border-brand-primary:focus { border-color: var(--brand-primary); }
+  .focus\:ring-brand-primary:focus { 
+    --tw-ring-color: var(--brand-primary);
+    --tw-ring-opacity: 0.2;
+  }
+}
+
+/* === Component Styles === */
+@layer components {
+  /* Button Primary */
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg font-medium transition-all;
+    background-color: var(--brand-primary);
+    color: white;
+  }
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
+  
+  /* Button Secondary */
+  .btn-secondary {
+    @apply px-4 py-2 rounded-lg font-medium transition-all;
+    background-color: var(--brand-secondary);
+    color: var(--brand-text-dark);
+  }
+  
+  /* Button Outline */
+  .btn-outline {
+    @apply px-4 py-2 rounded-lg font-medium transition-all border;
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    background-color: var(--brand-primary);
+    color: white;
+  }
+  
+  /* Button Ghost */
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg font-medium transition-all;
+    color: var(--brand-primary);
+    background: transparent;
+  }
+  .btn-ghost:hover {
+    background-color: rgba(147, 112, 88, 0.1);
+  }
+  
+  /* Card */
+  .card {
+    @apply rounded-xl p-4 border shadow-sm transition-shadow;
+    background-color: var(--brand-surface);
+    border-color: var(--brand-border);
+  }
+  .card:hover {
+    @apply shadow-md;
+  }
+  
+  /* Input */
+  .input {
+    @apply px-3 py-2 rounded-lg border transition-all outline-none;
+    background-color: var(--brand-surface);
+    border-color: var(--brand-border);
+    color: var(--brand-text-dark);
+  }
+  .input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(147, 112, 88, 0.15);
+  }
+  .input::placeholder {
+    color: var(--brand-text-light);
+  }
+  
+  /* Badge */
+  .badge {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-success {
+    background-color: rgba(106, 153, 78, 0.1);
+    color: var(--brand-success);
+  }
+  .badge-warning {
+    background-color: rgba(252, 215, 127, 0.2);
+    color: var(--brand-warning-fg);
+  }
+  .badge-error {
+    background-color: rgba(188, 71, 73, 0.1);
+    color: var(--brand-error);
+  }
+  .badge-info {
+    background-color: rgba(166, 205, 227, 0.2);
+    color: var(--brand-info-fg);
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    @apply h-screen fixed left-0 top-0 border-r overflow-y-auto;
+    background-color: var(--brand-surface);
+    border-color: var(--brand-border);
+  }
+  
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all cursor-pointer;
+    color: var(--brand-text-light);
+  }
+  .sidebar-item:hover {
+    background-color: rgba(147, 112, 88, 0.1);
+    color: var(--brand-text-dark);
+  }
+  .sidebar-item.active {
+    background-color: rgba(147, 112, 88, 0.15);
+    color: var(--brand-primary);
+    font-weight: 500;
+  }
+  
+  /* Bottom Navigation (Mobile) */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 border-t flex justify-around py-2;
+    background-color: var(--brand-surface);
+    border-color: var(--brand-border);
+  }
+  .bottom-nav-item {
+    @apply flex flex-col items-center gap-1 py-1 px-4 text-xs transition-all;
+    color: var(--brand-text-light);
+  }
+  .bottom-nav-item.active {
+    color: var(--brand-primary);
+  }
 }
