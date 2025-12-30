@@ -14,11 +14,23 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   
   // Check if we're in Agent Center
   const isAgentRoute = pathname?.startsWith('/agent');
+  
+  // Check if we're in Public Store (customer-facing pages)
+  const isPublicStoreRoute = pathname?.startsWith('/s/');
 
   // Agent Center uses its own layout - render children directly
   if (isAgentRoute) {
     return (
       <div className="h-screen overflow-hidden">
+        {children}
+      </div>
+    );
+  }
+
+  // Public Store pages - no sidebar/header, full screen for customers
+  if (isPublicStoreRoute) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {children}
       </div>
     );

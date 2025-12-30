@@ -2,7 +2,7 @@
 // Public Store Order Page - ลูกค้าสั่งซื้อ
 "use client";
 
-import React, { useState, useEffect, use, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { StoreSettings, StoreService } from '@/app/types/store';
@@ -28,8 +28,7 @@ const CheckCircleIcon = () => (
   </svg>
 );
 
-export default function StoreOrderPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
+export default function StoreOrderPage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceId = searchParams.get('service');
@@ -55,12 +54,12 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
 
   useEffect(() => {
     loadData();
-  }, [resolvedParams.slug, serviceId]);
+  }, [params.slug, serviceId]);
 
   const loadData = () => {
     setIsLoading(true);
     try {
-      const storeData = getStoreByUsername(resolvedParams.slug);
+      const storeData = getStoreByUsername(params.slug);
       if (storeData && serviceId) {
         setStore(storeData);
         const serviceData = getStoreServiceById(storeData.agentId, serviceId);
@@ -231,7 +230,7 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
           <h1 className="text-2xl font-bold text-primary mb-2">ไม่พบบริการ</h1>
           <p className="text-secondary mb-4">บริการนี้อาจถูกปิดหรือไม่มีอยู่</p>
           <Link
-            href={`/s/${resolvedParams.slug}`}
+            href={`/s/${params.slug}`}
             className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
             <ArrowLeftIcon />
@@ -302,13 +301,13 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
           
           <div className="mt-6 space-y-2">
             <Link
-              href={`/s/${resolvedParams.slug}/status?bill=${createdBill.billNumber}`}
+              href={`/s/${params.slug}/status?bill=${createdBill.billNumber}`}
               className="block w-full py-2.5 bg-brand-primary text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
             >
               ตรวจสอบสถานะ
             </Link>
             <Link
-              href={`/s/${resolvedParams.slug}`}
+              href={`/s/${params.slug}`}
               className="block w-full py-2.5 border border-default rounded-lg font-medium hover:bg-hover transition-colors"
             >
               กลับหน้าร้าน
@@ -326,7 +325,7 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
         <div className="max-w-lg mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link
-              href={`/s/${resolvedParams.slug}`}
+              href={`/s/${params.slug}`}
               className="p-2 -ml-2 hover:bg-hover rounded-lg transition-colors"
             >
               <ArrowLeftIcon />

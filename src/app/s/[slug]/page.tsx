@@ -2,7 +2,7 @@
 // Public Store Page - ลูกค้าเข้ามาดูและสั่งซื้อ
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { StoreSettings, StoreService } from '@/app/types/store';
@@ -78,8 +78,7 @@ const categoryColors: Record<string, string> = {
   'default': 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
 };
 
-export default function PublicStorePage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
+export default function PublicStorePage({ params }: { params: { slug: string } }) {
   const router = useRouter();
   const [store, setStore] = useState<StoreSettings | null>(null);
   const [services, setServices] = useState<StoreService[]>([]);
@@ -91,12 +90,12 @@ export default function PublicStorePage({ params }: { params: Promise<{ slug: st
 
   useEffect(() => {
     loadStore();
-  }, [resolvedParams.slug]);
+  }, [params.slug]);
 
   const loadStore = () => {
     setIsLoading(true);
     try {
-      const storeData = getStoreByUsername(resolvedParams.slug);
+      const storeData = getStoreByUsername(params.slug);
       if (storeData) {
         setStore(storeData);
         const activeServices = getActiveStoreServices(storeData.agentId);
@@ -276,7 +275,7 @@ export default function PublicStorePage({ params }: { params: Promise<{ slug: st
               {flashSales.slice(0, 2).map(fs => (
                 <Link
                   key={fs.id}
-                  href={`/s/${resolvedParams.slug}/order?service=${fs.serviceId}`}
+                  href={`/s/${params.slug}/order?service=${fs.serviceId}`}
                   className="bg-white/10 backdrop-blur rounded-lg p-3 hover:bg-white/20 transition-colors"
                 >
                   <p className="font-medium text-sm truncate">{fs.serviceName}</p>
@@ -304,7 +303,7 @@ export default function PublicStorePage({ params }: { params: Promise<{ slug: st
         {/* Quick Actions */}
         <div className="flex gap-3 mb-6">
           <Link
-            href={`/s/${resolvedParams.slug}/status`}
+            href={`/s/${params.slug}/status`}
             className="flex items-center gap-2 px-4 py-2 bg-surface dark:bg-dark-surface border border-default rounded-lg text-sm font-medium text-secondary hover:text-primary hover:border-brand-primary transition-colors"
           >
             <SearchIcon />
@@ -379,7 +378,7 @@ export default function PublicStorePage({ params }: { params: Promise<{ slug: st
                   return (
                     <Link
                       key={service.id}
-                      href={`/s/${resolvedParams.slug}/order?service=${service.id}`}
+                      href={`/s/${params.slug}/order?service=${service.id}`}
                       className="bg-surface dark:bg-dark-surface rounded-xl border border-default p-4 hover:border-brand-primary transition-colors group relative overflow-hidden"
                     >
                       {flashSale && (

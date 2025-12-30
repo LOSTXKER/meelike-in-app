@@ -2,7 +2,7 @@
 // Public Store Order Status Page - ลูกค้าตรวจสอบสถานะ
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import type { StoreSettings } from '@/app/types/store';
@@ -56,8 +56,7 @@ function getStatusStepIndex(status: string): number {
   return statusSteps.indexOf(status as typeof statusSteps[number]);
 }
 
-export default function OrderStatusPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
+export default function OrderStatusPage({ params }: { params: { slug: string } }) {
   const searchParams = useSearchParams();
   const billNumber = searchParams.get('bill') || '';
   
@@ -69,7 +68,7 @@ export default function OrderStatusPage({ params }: { params: Promise<{ slug: st
 
   useEffect(() => {
     loadStore();
-  }, [resolvedParams.slug]);
+  }, [params.slug]);
 
   useEffect(() => {
     if (billNumber && store) {
@@ -80,7 +79,7 @@ export default function OrderStatusPage({ params }: { params: Promise<{ slug: st
   const loadStore = () => {
     setIsLoading(true);
     try {
-      const storeData = getStoreByUsername(resolvedParams.slug);
+      const storeData = getStoreByUsername(params.slug);
       setStore(storeData);
     } finally {
       setIsLoading(false);
@@ -165,7 +164,7 @@ export default function OrderStatusPage({ params }: { params: Promise<{ slug: st
         <div className="max-w-lg mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link
-              href={`/s/${resolvedParams.slug}`}
+              href={`/s/${params.slug}`}
               className="p-2 -ml-2 hover:bg-hover rounded-lg transition-colors"
             >
               <ArrowLeftIcon />

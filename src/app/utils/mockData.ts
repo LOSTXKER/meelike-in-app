@@ -473,6 +473,7 @@ export function initializeMockData(): void {
   generateMockPromotions();
   generateMockAgentReviews();
   generateMockNotifications();
+  generateMockStoreServices();
 }
 
 /**
@@ -634,4 +635,98 @@ export function generateMockNotifications(): void {
   });
 
   console.log(`Agent mock notifications initialized: ${mockNotifications.length} notifications`);
+}
+
+/**
+ * Generate mock store services for demo agent
+ */
+export function generateMockStoreServices(): void {
+  // Import store functions dynamically to avoid circular dependencies
+  const { 
+    getStoreSettings, 
+    createStoreSettings, 
+    addStoreService, 
+    updateStoreSettings 
+  } = require('./storage/stores');
+  
+  const DEMO_AGENT_ID = 'demo_agent';
+  
+  // Check if store already has services
+  let store = getStoreSettings(DEMO_AGENT_ID);
+  if (store && store.services && store.services.length > 0) {
+    console.log('Store services already initialized');
+    return;
+  }
+  
+  // Create store if not exists
+  if (!store) {
+    store = createStoreSettings(DEMO_AGENT_ID, 'mystore', 'pro');
+    updateStoreSettings(DEMO_AGENT_ID, {
+      storeName: 'ร้านค้าของฉัน',
+      storeDescription: 'ร้านค้าให้บริการเพิ่ม Followers, Likes และอื่นๆ',
+      contactLine: '@myshop',
+      isActive: true,
+    });
+  }
+  
+  // Mock services to add
+  const mockServices = [
+    // Facebook
+    { serviceId: 1, serviceName: 'Facebook ถูกใจโพสต์', category: 'Facebook', baseCost: 0.15, salePrice: 0.35, minQuantity: 50, maxQuantity: 10000 },
+    { serviceId: 2, serviceName: 'Facebook ผู้ติดตามเพจ', category: 'Facebook', baseCost: 0.25, salePrice: 0.60, minQuantity: 100, maxQuantity: 50000 },
+    { serviceId: 4, serviceName: 'Facebook แชร์โพสต์', category: 'Facebook', baseCost: 0.50, salePrice: 1.20, minQuantity: 50, maxQuantity: 5000 },
+    
+    // Instagram
+    { serviceId: 11, serviceName: 'Instagram ผู้ติดตาม (คนไทย)', category: 'Instagram', baseCost: 0.35, salePrice: 0.80, minQuantity: 100, maxQuantity: 50000, displayName: 'IG Followers คนไทยแท้' },
+    { serviceId: 12, serviceName: 'Instagram ถูกใจโพสต์', category: 'Instagram', baseCost: 0.10, salePrice: 0.25, minQuantity: 50, maxQuantity: 20000 },
+    { serviceId: 13, serviceName: 'Instagram วิว Reels', category: 'Instagram', baseCost: 0.05, salePrice: 0.12, minQuantity: 100, maxQuantity: 100000 },
+    
+    // TikTok
+    { serviceId: 21, serviceName: 'TikTok ผู้ติดตาม', category: 'TikTok', baseCost: 0.40, salePrice: 0.95, minQuantity: 100, maxQuantity: 100000, displayName: 'TikTok Followers คุณภาพ' },
+    { serviceId: 22, serviceName: 'TikTok ถูกใจวิดีโอ', category: 'TikTok', baseCost: 0.08, salePrice: 0.20, minQuantity: 100, maxQuantity: 50000 },
+    { serviceId: 23, serviceName: 'TikTok วิววิดีโอ', category: 'TikTok', baseCost: 0.02, salePrice: 0.05, minQuantity: 500, maxQuantity: 1000000, displayName: 'TikTok วิว (เร็วมาก)' },
+    
+    // YouTube
+    { serviceId: 31, serviceName: 'YouTube ผู้ติดตาม', category: 'YouTube', baseCost: 1.00, salePrice: 2.50, minQuantity: 50, maxQuantity: 10000 },
+    { serviceId: 32, serviceName: 'YouTube วิววิดีโอ', category: 'YouTube', baseCost: 0.10, salePrice: 0.25, minQuantity: 100, maxQuantity: 100000 },
+    { serviceId: 33, serviceName: 'YouTube ถูกใจวิดีโอ', category: 'YouTube', baseCost: 0.50, salePrice: 1.20, minQuantity: 50, maxQuantity: 5000 },
+  ];
+  
+  mockServices.forEach(service => {
+    addStoreService(DEMO_AGENT_ID, {
+      serviceId: service.serviceId,
+      serviceName: service.serviceName,
+      category: service.category,
+      baseCost: service.baseCost,
+      salePrice: service.salePrice,
+      minQuantity: service.minQuantity,
+      maxQuantity: service.maxQuantity,
+      displayName: service.displayName,
+      isActive: true,
+    });
+  });
+  
+  // Update some stats
+  updateStoreSettings(DEMO_AGENT_ID, {
+    // @ts-ignore - updating totalViews directly
+  });
+  
+  // Manually update store stats
+  const stores = JSON.parse(localStorage.getItem('meelike_agent_stores') || '{}');
+  if (stores[DEMO_AGENT_ID]) {
+    stores[DEMO_AGENT_ID].totalViews = Math.floor(Math.random() * 500) + 100;
+    stores[DEMO_AGENT_ID].totalOrders = Math.floor(Math.random() * 50) + 10;
+    stores[DEMO_AGENT_ID].totalRevenue = Math.floor(Math.random() * 10000) + 2000;
+    stores[DEMO_AGENT_ID].averageRating = 4.5 + Math.random() * 0.5;
+    stores[DEMO_AGENT_ID].totalReviews = Math.floor(Math.random() * 20) + 5;
+    
+    // Update service sold counts
+    stores[DEMO_AGENT_ID].services.forEach((service: any, index: number) => {
+      service.totalSold = Math.floor(Math.random() * 5000) + 500;
+    });
+    
+    localStorage.setItem('meelike_agent_stores', JSON.stringify(stores));
+  }
+  
+  console.log(`Store services initialized: ${mockServices.length} services`);
 }
