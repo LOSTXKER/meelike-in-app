@@ -11,6 +11,9 @@ import { generateBillId, generateBillNumber } from '@/app/types/bill';
 import { getStoreByUsername, getStoreServiceById, updateStoreOrderStats, updateServiceSoldCount } from '@/app/utils/storage/stores';
 import { saveBill } from '@/app/utils/storage/bills';
 import { getOrCreateClient, updateClientOrderStats } from '@/app/utils/storage/clients';
+import { getCoupons, recordCouponUsage } from '@/app/utils/storage/promotions';
+import type { Coupon } from '@/app/types/promotion';
+import { calculateCouponDiscount, calculateCouponStatus } from '@/app/types/promotion';
 
 // Icons
 const ArrowLeftIcon = () => (
@@ -44,6 +47,11 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
   const [customerName, setCustomerName] = useState('');
   const [customerContact, setCustomerContact] = useState('');
   const [note, setNote] = useState('');
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState('');
 
   useEffect(() => {
     loadData();
@@ -76,15 +84,63 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
   // Calculations
   const calculations = useMemo(() => {
     if (!service || !quantity) {
-      return { total: 0, valid: false };
+      return { subtotal: 0, discount: 0, total: 0, valid: false };
     }
     
     const qty = parseInt(quantity) || 0;
-    const total = service.salePrice * qty;
+    const subtotal = service.salePrice * qty;
     const valid = qty >= service.minQuantity && qty <= service.maxQuantity;
     
-    return { total, qty, valid };
-  }, [service, quantity]);
+    // Calculate coupon discount
+    let discount = 0;
+    if (appliedCoupon && valid) {
+      discount = calculateCouponDiscount(appliedCoupon, subtotal);
+    }
+    
+    const total = subtotal - discount;
+    
+    return { subtotal, discount, total, qty, valid };
+  }, [service, quantity, appliedCoupon]);
+
+  // Apply coupon
+  const handleApplyCoupon = () => {
+    if (!store || !couponCode.trim()) return;
+    
+    setCouponError('');
+    const coupons = getCoupons(store.agentId);
+    const coupon = coupons.find(c => c.code.toLowerCase() === couponCode.trim().toLowerCase());
+    
+    if (!coupon) {
+      setCouponError('ไม่พบคูปองนี้');
+      return;
+    }
+    
+    const status = calculateCouponStatus(coupon);
+    if (status !== 'active') {
+      setCouponError(status === 'expired' ? 'คูปองหมดอายุแล้ว' : 'คูปองถูกใช้หมดแล้ว');
+      return;
+    }
+    
+    if (coupon.minPurchase && calculations.subtotal < coupon.minPurchase) {
+      setCouponError(`ยอดขั้นต่ำ ฿${coupon.minPurchase.toLocaleString()}`);
+      return;
+    }
+    
+    // Check if coupon is applicable to this service
+    if (coupon.applicableServices && coupon.applicableServices.length > 0) {
+      if (service && !coupon.applicableServices.includes(service.serviceId)) {
+        setCouponError('คูปองนี้ไม่สามารถใช้กับบริการนี้ได้');
+        return;
+      }
+    }
+    
+    setAppliedCoupon(coupon);
+    setCouponCode('');
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+  };
 
   // Handle submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,41 +159,51 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
       // Create bill item
       const billItem: BillItem = {
         id: `item_${Date.now()}`,
-        serviceId: service.serviceId.toString(),
+        serviceId: service.serviceId,
         serviceName: service.displayName || service.serviceName,
+        category: service.category || 'general',
         quantity: qty,
-        unitPrice: service.baseCost,
-        sellPrice: service.salePrice,
-        totalCost: service.baseCost * qty,
-        totalSell: total,
-        profit: total - (service.baseCost * qty),
         link,
-        status: 'pending',
-        progress: 0,
-        currentCount: 0,
+        unitCost: service.baseCost,
+        baseCost: service.baseCost * qty,
+        agentDiscount: 0,
+        actualCost: service.baseCost * qty,
+        salePrice: total,
+        profit: total - (service.baseCost * qty),
+        profitMargin: ((total - (service.baseCost * qty)) / total) * 100,
       };
       
       // Create bill
+      const finalTotal = calculations.total;
+      const discountAmount = calculations.discount;
+      
       const bill: Bill = {
         id: generateBillId(),
         billNumber: generateBillNumber(),
         agentId: store.agentId,
+        agentUsername: store.username,
         clientId: client.id,
         clientName: customerName,
         clientContact: customerContact,
         items: [billItem],
+        subtotal: calculations.subtotal,
         totalCost: billItem.totalCost,
-        sellPrice: total,
-        totalAmount: total,
-        totalProfit: billItem.profit,
+        couponCode: appliedCoupon?.code,
+        couponDiscount: discountAmount,
+        totalAmount: finalTotal,
+        totalProfit: billItem.profit - discountAmount,
         status: 'pending',
         source: 'store',
-        note: note || undefined,
+        customerNote: note || undefined,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       };
       
       saveBill(bill);
+      
+      // Record coupon usage
+      if (appliedCoupon) {
+        recordCouponUsage(store.agentId, appliedCoupon.id, client.id, bill.id, discountAmount);
+      }
       
       // Update store stats
       updateStoreOrderStats(store.agentId, total);
@@ -198,6 +264,12 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
               <span className="text-secondary">จำนวน</span>
               <span className="font-medium">{calculations.qty?.toLocaleString()}</span>
             </div>
+            {createdBill.couponDiscount && createdBill.couponDiscount > 0 && (
+              <div className="flex justify-between mb-2">
+                <span className="text-green-600 dark:text-green-400">ส่วนลด ({createdBill.couponCode})</span>
+                <span className="text-green-600 dark:text-green-400">-{formatCurrency(createdBill.couponDiscount)}</span>
+              </div>
+            )}
             <div className="flex justify-between pt-2 border-t border-default">
               <span className="text-secondary">ยอดชำระ</span>
               <span className="font-bold text-lg text-brand-primary">{formatCurrency(createdBill.totalAmount)}</span>
@@ -325,11 +397,74 @@ export default function StoreOrderPage({ params }: { params: Promise<{ slug: str
               )}
             </div>
             
+            {/* Coupon */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-secondary mb-2">
+                คูปองส่วนลด
+              </label>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div>
+                    <span className="font-mono font-medium text-green-700 dark:text-green-300">
+                      {appliedCoupon.code}
+                    </span>
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
+                      {appliedCoupon.description}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="text-sm text-red-500 hover:underline"
+                  >
+                    ลบ
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError('');
+                    }}
+                    placeholder="กรอกรหัสคูปอง"
+                    className="flex-1 px-4 py-2.5 bg-main border border-default rounded-lg text-sm focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary outline-none font-mono uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={!couponCode.trim()}
+                    className="px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-primary rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ใช้คูปอง
+                  </button>
+                </div>
+              )}
+              {couponError && (
+                <p className="text-xs text-red-500 mt-1">{couponError}</p>
+              )}
+            </div>
+            
             {/* Total */}
             {calculations.valid && (
-              <div className="p-3 bg-brand-primary/10 rounded-lg">
+              <div className="p-3 bg-brand-primary/10 rounded-lg space-y-2">
+                {calculations.discount > 0 && (
+                  <>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-secondary">ราคาสินค้า</span>
+                      <span className="text-primary">{formatCurrency(calculations.subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-green-600 dark:text-green-400">ส่วนลดคูปอง</span>
+                      <span className="text-green-600 dark:text-green-400">-{formatCurrency(calculations.discount)}</span>
+                    </div>
+                    <div className="border-t border-brand-primary/20 pt-2"></div>
+                  </>
+                )}
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-primary">ยอดรวม</span>
+                  <span className="font-medium text-primary">ยอดชำระ</span>
                   <span className="text-xl font-bold text-brand-primary">{formatCurrency(calculations.total)}</span>
                 </div>
               </div>

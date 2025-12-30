@@ -21,6 +21,7 @@ import { createClient, getClients } from './storage/clients';
 import { saveBill, getBills } from './storage/bills';
 import { getCoupons, createCoupon, getFlashSales, createFlashSale } from './storage/promotions';
 import { getAgentReviews, createAgentReview } from './storage/agentReviews';
+import { getNotifications, createNotification } from './storage/notifications';
 import type { Bill, BillItem, BillStatus } from '@/app/types/bill';
 import { generateBillId, generateBillNumber } from '@/app/types/bill';
 
@@ -469,6 +470,7 @@ export function initializeMockData(): void {
   generateMockBills();
   generateMockPromotions();
   generateMockAgentReviews();
+  generateMockNotifications();
 }
 
 /**
@@ -529,4 +531,105 @@ export function generateMockAgentReviews(): void {
   });
 
   console.log(`Agent mock reviews initialized: ${reviewComments.length} reviews`);
+}
+
+/**
+ * Generate mock notifications for Agent demo
+ */
+export function generateMockNotifications(): void {
+  const DEMO_AGENT_ID = 'demo_agent';
+  
+  // Check if notifications already exist
+  const existingNotifications = getNotifications(DEMO_AGENT_ID);
+  if (existingNotifications.length > 0) {
+    console.log('Agent mock notifications already exist, skipping...');
+    return;
+  }
+
+  const mockNotifications = [
+    {
+      type: 'new_order' as const,
+      priority: 'high' as const,
+      title: 'มีออเดอร์ใหม่!',
+      message: 'สมชาย สั่งออเดอร์ ฿350 - Instagram Followers',
+      billId: 'BILL-001',
+      actionUrl: '/agent/orders',
+    },
+    {
+      type: 'payment_received' as const,
+      priority: 'high' as const,
+      title: 'ลูกค้าแจ้งโอนเงินแล้ว',
+      message: 'จิราพร แจ้งโอนเงิน ฿250 รอตรวจสอบ',
+      billId: 'BILL-002',
+      actionUrl: '/agent/orders',
+    },
+    {
+      type: 'order_completed' as const,
+      priority: 'normal' as const,
+      title: 'ออเดอร์สำเร็จ',
+      message: 'BILL-003 (TikTok วิว) เสร็จสมบูรณ์',
+      billId: 'BILL-003',
+      actionUrl: '/agent/orders',
+    },
+    {
+      type: 'new_review' as const,
+      priority: 'normal' as const,
+      title: 'มีรีวิวใหม่!',
+      message: '★★★★★ "บริการดีมากครับ ส่งงานเร็ว"',
+      reviewId: 'REVIEW-001',
+      actionUrl: '/agent/reviews',
+    },
+    {
+      type: 'coupon_used' as const,
+      priority: 'normal' as const,
+      title: 'คูปองถูกใช้',
+      message: 'รหัส SALE10 ถูกใช้ ส่วนลด ฿50',
+      actionUrl: '/agent/promotions',
+    },
+    {
+      type: 'low_balance' as const,
+      priority: 'high' as const,
+      title: 'ยอดเงินเหลือน้อย',
+      message: 'ยอดเงินในบัญชีเหลือ ฿150 กรุณาเติมเงิน',
+      actionUrl: '/add-funds',
+    },
+    {
+      type: 'subscription_expiring' as const,
+      priority: 'high' as const,
+      title: 'แพ็คเกจ Boost ใกล้หมด',
+      message: 'แพ็คเกจของคุณจะหมดอายุใน 5 วัน',
+      actionUrl: '/subscription',
+    },
+    {
+      type: 'system' as const,
+      priority: 'normal' as const,
+      title: 'ประกาศจากระบบ',
+      message: 'ระบบจะปิดปรับปรุงวันที่ 1 ม.ค. เวลา 02:00-04:00 น.',
+    },
+    {
+      type: 'order_failed' as const,
+      priority: 'high' as const,
+      title: 'ออเดอร์มีปัญหา',
+      message: 'BILL-005 (Facebook ถูกใจ) ไม่สำเร็จ กรุณาตรวจสอบ',
+      billId: 'BILL-005',
+      actionUrl: '/agent/orders',
+    },
+    {
+      type: 'new_order' as const,
+      priority: 'high' as const,
+      title: 'มีออเดอร์ใหม่!',
+      message: 'วิภาดา สั่งออเดอร์ ฿180 - YouTube วิว',
+      billId: 'BILL-006',
+      actionUrl: '/agent/orders',
+    },
+  ];
+
+  mockNotifications.forEach((notif, index) => {
+    // Delay creation slightly to ensure different timestamps
+    setTimeout(() => {
+      createNotification(DEMO_AGENT_ID, notif);
+    }, index * 10);
+  });
+
+  console.log(`Agent mock notifications initialized: ${mockNotifications.length} notifications`);
 }
