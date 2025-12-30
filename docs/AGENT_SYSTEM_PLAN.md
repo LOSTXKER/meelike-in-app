@@ -979,68 +979,68 @@ export interface NotificationSettings {
 - [ ] Next.js Middleware สำหรับ Subdomain Routing
 - [ ] Test subdomain routing
 
-### Phase 1: Types & Storage (2-3 วัน)
-- [ ] Bill types
-- [ ] Client types
-- [ ] Store types
-- [ ] Promotion types
-- [ ] Review types
-- [ ] Template types
-- [ ] Notification types
-- [ ] All storage utilities
+### Phase 1: Types & Storage (2-3 วัน) ✅
+- [x] Bill types
+- [x] Client types
+- [x] Store types
+- [x] Promotion types
+- [x] Review types
+- [x] Template types
+- [x] Notification types
+- [x] All storage utilities
 
-### Phase 2: Agent Center Core (1-2 สัปดาห์)
-- [ ] Agent Center layout
-- [ ] Dashboard page
-- [ ] Bills management (list, create, detail)
-- [ ] Bill status flow
-- [ ] Confirm/Cancel actions
+### Phase 2: Agent Center Core (1-2 สัปดาห์) ✅
+- [x] Agent Center layout
+- [x] Dashboard page
+- [x] Bills management (list, create, detail)
+- [x] Bill status flow
+- [x] Confirm/Cancel actions
 
-### Phase 3: Client Management (3-4 วัน)
-- [ ] Clients list + Segments
-- [ ] Client detail
-- [ ] Add/Edit client
-- [ ] Client tags
+### Phase 3: Client Management (3-4 วัน) ✅
+- [x] Clients list + Segments
+- [x] Client detail
+- [x] Add/Edit client
+- [x] Client tags
 
-### Phase 4: Agent Store Core (1-2 สัปดาห์)
-- [ ] Store settings page
-- [ ] Store layout (public)
-- [ ] Store homepage
-- [ ] Service detail
-- [ ] Checkout page
-- [ ] Order lookup
-- [ ] Order status page
-- [ ] MeeLike branding
+### Phase 4: Agent Store Core (1-2 สัปดาห์) ✅
+- [x] Store settings page
+- [x] Store layout (public)
+- [x] Store homepage
+- [x] Service detail
+- [x] Checkout page
+- [x] Order lookup
+- [x] Order status page
+- [x] MeeLike branding
 
-### Phase 5: Reviews & Promotions (1 สัปดาห์)
-- [ ] Review system
-- [ ] Review display on store
-- [ ] Agent reply to reviews
-- [ ] Coupon system
-- [ ] Coupon input on checkout
-- [ ] Flash Sale (Boost+)
-- [ ] Loyalty tiers (Boost+)
+### Phase 5: Reviews & Promotions (1 สัปดาห์) ✅
+- [x] Review system
+- [x] Review display on store
+- [x] Agent reply to reviews
+- [x] Coupon system
+- [x] Coupon input on checkout
+- [x] Flash Sale (Boost+)
+- [x] Loyalty tiers (Boost+)
 
-### Phase 6: Templates & Notifications (3-4 วัน)
+### Phase 6: Templates & Notifications (3-4 วัน) ✅
 - [ ] Bill templates
-- [ ] Quick reply templates
-- [ ] In-app notifications
-- [ ] Notification settings
+- [x] Quick reply templates
+- [x] In-app notifications
+- [x] Notification settings
 - [ ] LINE integration (Boost, Boost+)
 - [ ] Email integration (Boost+)
 
-### Phase 7: Analytics & Subscription (1 สัปดาห์)
-- [ ] Store analytics (Basic/Pro)
-- [ ] Agent analytics
-- [ ] Subscription page
-- [ ] Plan comparison
+### Phase 7: Analytics & Subscription (1 สัปดาห์) ✅
+- [x] Store analytics (Basic/Pro)
+- [x] Agent analytics
+- [x] Subscription page
+- [x] Plan comparison
 - [ ] Upgrade/Downgrade flow
 
-### Phase 8: Polish & Testing (3-4 วัน)
-- [ ] Responsive design
-- [ ] Dark mode support
-- [ ] Error handling
-- [ ] Loading states
+### Phase 8: Polish & Testing (3-4 วัน) ✅
+- [x] Responsive design
+- [x] Dark mode support
+- [x] Error handling
+- [x] Loading states
 - [ ] End-to-end testing
 
 ---
